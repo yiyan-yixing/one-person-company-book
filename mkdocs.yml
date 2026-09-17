@@ -1,0 +1,44 @@
+site_name: 一人公司：把一个人的边界，扩成一家公司
+site_description: 一个人，怎么用 AI 把「干不过来」变成一家公司——不讲原理，讲过程与账本
+site_url: https://yiyan-yixing.github.io/one-person-company-book/
+repo_url: https://github.com/yiyan-yixing/one-person-company-book
+repo_name: yiyan-yixing/one-person-company-book
+docs_dir: .site-src
+site_dir: .site-build
+use_directory_urls: false
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: blue grey
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: 切换深色模式
+    - scheme: slate
+      primary: blue grey
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: 切换浅色模式
+plugins:
+  - search:
+      lang: [zh, en]
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.superfences

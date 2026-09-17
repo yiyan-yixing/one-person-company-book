@@ -1,0 +1,3 @@
+# 钉死版本：mkdocs-material 9.7.7 + mkdocs 1.6.1（避免 MkDocs 2.0 的不兼容变更）
+mkdocs==1.6.1
+mkdocs-material==9.7.7
