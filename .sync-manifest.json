@@ -1,5 +1,5 @@
 {
-  "note": "本文件由 scripts/sync-book-site.py 维护；记录脚本「拥有」的文件清单。",
+  "note": "本文件由书站同步脚本维护；记录脚本「拥有」的文件清单。",
   "managed": [
     ".sync-manifest.json",
     "README.md",
