@@ -1,0 +1,62 @@
+name: Build and deploy book site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install MkDocs
+        run: pip install -r requirements.txt
+      - name: Assemble site source
+        run: |
+          set -euo pipefail
+          rm -rf .site-src
+          mkdir -p .site-src/正文
+          cp README.md .site-src/index.md
+          cp manuscripts/*.md .site-src/正文/
+          cp archive/outlines/outline.md .site-src/目录大纲.md
+          if [ -d manuscripts/assets ]; then
+            cp -r manuscripts/assets .site-src/正文/assets
+          fi
+      - name: Build site
+        run: mkdocs build
+      # 首次上线前，Pages 需要人工启用一次：仓库 Settings → Pages → Source 选
+      # "GitHub Actions"。原因是 configure-pages 的 enablement 明确要求「非 GITHUB_TOKEN
+      # 的 token」（见其 action.yml）——用默认 GITHUB_TOKEN 自建站点会直接抛错、把这次
+      # job 打挂。若愿意配一个带 repo/Pages 写权限的 PAT 存成 secret PAGES_TOKEN，
+      # 下面的 token 表达式会自动改用它，enablement 才能真正生效。
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+          token: ${{ secrets.PAGES_TOKEN || github.token }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .site-build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
