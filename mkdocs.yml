@@ -128,7 +128,7 @@
     "repo": "https://github.com/yiyan-yixing/one-person-company-book"
     "site_url": "https://yiyan-yixing.github.io/one-person-company-book/"
     "prelude_cta": "正文/00-引子.html"
-    "ready": 7
+    "ready": 18
     "total": 24
     "chapters": 7
     "sibling_title": "AI System 原理 —— 从一个 Token，到一个 AI System"
@@ -139,47 +139,47 @@
       "theme": "一个人干不过来"
       "part": ""
       "url": "正文/第01章-起点/index.html"
-      "ready": 1
+      "ready": 2
       "total": 2
     - "num": "第二章"
       "name": "组织"
       "theme": "给混乱装个路由器"
       "part": ""
       "url": "正文/第02章-组织/index.html"
-      "ready": 2
+      "ready": 4
       "total": 4
     - "num": "第三章"
       "name": "让 AI 干活"
       "theme": "真实任务链"
       "part": ""
       "url": "正文/第03章-让-AI-干活/index.html"
-      "ready": 1
+      "ready": 2
       "total": 4
     - "num": "第四章"
       "name": "把算力搬回家"
       "theme": "本地模型"
       "part": ""
       "url": "正文/第04章-把算力搬回家/index.html"
-      "ready": 3
+      "ready": 4
       "total": 6
     - "num": "第五章"
       "name": "失败也是账本"
       "theme": ""
       "part": ""
       "url": "正文/第05章-失败也是账本/index.html"
-      "ready": 0
+      "ready": 2
       "total": 3
     - "num": "第六章"
       "name": "钱和账"
       "theme": "一人公司的真实账本"
       "part": ""
       "url": "正文/第06章-钱和账/index.html"
-      "ready": 0
+      "ready": 1
       "total": 2
     - "num": "第七章"
       "name": "收束"
       "theme": ""
       "part": ""
       "url": "正文/第07章-收束/index.html"
-      "ready": 0
+      "ready": 2
       "total": 2
