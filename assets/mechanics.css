@@ -543,16 +543,15 @@ body,
 .bk-mini { font-size: var(--bk-fs-mini); letter-spacing: 0.06em; color: var(--bk-fg-faint); }
 .bk-rule { border: 0; border-top: var(--bk-hairline) solid var(--bk-line); margin: 34px 0; }
 
-/* 版心控制：桌面居中；**窄屏必须补回左右内边距**——
-   `margin:0 auto` 在视口 < 版心时退化成 0，会把 Material 给手机的 .8rem 一起吃掉，
-   实测 390px 下正文第一个字的 left=0（文字贴屏幕边）。 */
+/* 版心控制：**始终保留两侧 gutter**（gutter 20px 是"书页留白"，任何宽度都不该消失）。
+   写成 版心 + 2×gutter 的 max-width，配合 border-box —— 可用宽度不足时自动收缩，
+   不会出现"文字贴屏幕边"。之前用 media query 在 ≥768px 把内边距归零，
+   结果 960–1039px（右侧目录栏刚出现、把正文列压到 < 版心）时左留白变 0，平板横屏踩到。 */
 .md-content__inner {
-  max-width: var(--bk-measure);
-  margin: 0 auto;
-  padding-inline: 20px;
-}
-@media screen and (min-width: 768px) {
-  .md-content__inner { padding-inline: 0; }
+  --bk-gutter: 20px;
+  max-width: calc(var(--bk-measure) + var(--bk-gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--bk-gutter);
 }
 /* 封面上允许比正文更宽（排版上"打开"） */
 .md-content__inner:has(.bk-cover),
@@ -614,11 +613,15 @@ body,
   cursor: default;
 }
 .md-nav--primary .md-nav__item--section > label.md-nav__link .md-nav__icon { display: none; }
-/* 分卷标签必须单行：折行会让它看起来像正文 */
+/* 分卷标签最多折两行：单行 + 省略号会把「上篇 · 零件：从一个 Token，到一个模型」
+   切掉 72px（线上实测），分卷名是结构信息，宁可折行也不该被截。字距已收到 0.10em，
+   折行不会再像正文。 */
 .md-nav--primary .md-nav__item--section > label.md-nav__link .md-ellipsis {
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* 缩进与 Material 的"层级负边距补偿"解耦：每一层嵌套都不再自带偏移，
@@ -694,6 +697,18 @@ body,
 /* 圆点用绝对定位挂在 link 上：link 本身是 static，得给它一个定位上下文，
    否则会一路找到带 position 的祖先，被甩到侧栏最左边（实测过）。 */
 .md-nav--primary .md-nav__link { position: relative; }
+/* 抽屉里的面板标题（"第X章 …"）：几何被上面那条"缩进归零"规则带偏过 —— 文字被挤到
+   overflow:hidden 的盒子外面，整行只剩一个返回箭头，且点不到当前章。这里把标题
+   恢复成"一行高、垂直居中、可完整显示"的盒子。 */
+.md-nav--primary .md-nav__title {
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 12px;
+  line-height: 1.5;
+  overflow: visible;
+}
+.md-nav--primary .md-nav__title .md-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .md-nav--primary .md-nav .md-nav__item { position: relative; }
 
 /* ---------------------------------------------------------------------------

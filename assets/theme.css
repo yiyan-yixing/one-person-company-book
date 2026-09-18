@@ -1164,3 +1164,21 @@ body { background-color: var(--bk-bg); }
   letter-spacing: 0.02em;
   padding-top: 2px;
 }
+
+/* ---------------------------------------------------------------------------
+   封面章网格：长章名必须可压缩
+   ---------------------------------------------------------------------------
+   线上实测（390px）：`第十一章 Knowledge / Graph · Memory` 的章名 `flex:none`，
+   不可压缩 → 把右侧「待写 · 共 1 节」顶到屏幕外 60px；而页面 `overflow-x:hidden`，
+   读者够不到那截文字（不是"能拖动"，是"被裁掉"）。章名改成可压缩 + 省略号，
+   账目（meta）永远完整。
+   --------------------------------------------------------------------------- */
+.md-typeset .bk-toc__chapter { min-width: 0; }
+.md-typeset .bk-toc__chapter-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.md-typeset .bk-toc__chapter-meta { flex: 0 0 auto; }
