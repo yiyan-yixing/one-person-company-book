@@ -3,7 +3,7 @@ status: growing
 ---
 
 <div class="bk-chapter-head">
-<div class="bk-chapter-num">第二章 · 引子</div>
+<div class="bk-chapter-num">第二章</div>
 <h1 class="bk-chapter-name">组织<span class="bk-chapter-theme">给混乱装个路由器</span></h1>
 <p class="bk-chapter-meta">本章 4 节 · 已发布 2 节 · 全书 24 节 · 已发布 7 节</p>
 </div>

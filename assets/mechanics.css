@@ -59,6 +59,8 @@
   --bk-w-head: 700;
 
   /* 结构性尺寸 */
+  --bk-nav-indent: 14px;  /* 二级（节）相对一级（章）的缩进 */
+
   --bk-radius: 6px;
   --bk-radius-lg: 10px;
   --bk-hairline: 1px;
@@ -186,7 +188,8 @@ body,
   margin-left: 0.35em;
   font-size: 0.72em;
 }
-.md-typeset :is(h1, h2, h3, h4, h5, h6):hover .headerlink { opacity: 1; }
+.md-typeset :is(h1, h2, h3, h4, h5, h6):hover .headerlink,
+.md-typeset .headerlink:focus-visible { opacity: 1; }
 .md-typeset .headerlink:hover { background: none; color: var(--bk-accent); }
 
 /* ---------------------------------------------------------------------------
@@ -540,8 +543,17 @@ body,
 .bk-mini { font-size: var(--bk-fs-mini); letter-spacing: 0.06em; color: var(--bk-fg-faint); }
 .bk-rule { border: 0; border-top: var(--bk-hairline) solid var(--bk-line); margin: 34px 0; }
 
-/* 版心控制 */
-.md-content__inner { max-width: var(--bk-measure); margin: 0 auto; }
+/* 版心控制：桌面居中；**窄屏必须补回左右内边距**——
+   `margin:0 auto` 在视口 < 版心时退化成 0，会把 Material 给手机的 .8rem 一起吃掉，
+   实测 390px 下正文第一个字的 left=0（文字贴屏幕边）。 */
+.md-content__inner {
+  max-width: var(--bk-measure);
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+@media screen and (min-width: 768px) {
+  .md-content__inner { padding-inline: 0; }
+}
 /* 封面上允许比正文更宽（排版上"打开"） */
 .md-content__inner:has(.bk-cover),
 .md-content__inner:has(.bk-chapter-head) { max-width: none; }
@@ -609,12 +621,35 @@ body,
   text-overflow: ellipsis;
 }
 
-/* 章：一级。字重更重、字号更大、带一条 accent 左轨（仅当前章） */
+/* 缩进与 Material 的"层级负边距补偿"解耦：每一层嵌套都不再自带偏移，
+   章一律落在基准线、节一律靠自己的 padding 缩进一格。
+   否则同样一套 CSS，书 A（多了分卷层）章/节差 12.5px、书 B 差 0px —— 缩进这层信息就丢了。 */
+/* 复位 Material 的层级几何：它在每一层都给 ul 加 margin/padding、给嵌套 nav 加负边距来"补偿"，
+   而补偿次数随"这本书有没有分卷层"而不同 —— 同样的 CSS，书 A 的章/节缩进差 12.5px、书 B 是 0px。
+   这里把补偿全部归零，缩进只由下面一条规则提供，两本书就一致了。
+   （!important 是必要的：Material 的层级规则特异性不低，且有的落在 ul 上、有的落在 nav 上。） */
+.md-nav--primary nav[data-md-level] { margin-left: 0 !important; }
+.md-nav--primary nav[data-md-level] > .md-nav__list {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+/* 进一级 = 缩进一格（由"父项的嵌套容器"承担，与层级数无关） */
+.md-nav--primary .md-nav__item--nested > nav[data-md-level] {
+  padding-left: var(--bk-nav-indent, 14px) !important;
+}
+
+/* 章：一级。字重更重、字号更大、带一条 accent 左轨（仅当前章）。
+   左轨用 inset box-shadow 画，不占布局，章文字不会被推进去（否则节的缩进差会被吃掉）。 */
 .md-nav--primary .md-nav__container {
   display: flex;
   align-items: stretch;
-  border-left: 2px solid transparent;
-  padding-left: 2px;
+  padding-left: 0;
+  box-shadow: inset 2px 0 0 transparent;
+}
+.md-nav--primary .md-nav__container > .md-nav__link {
+  /* 必须压掉 Material 的 .5rem 左内边距：否则没有分卷层的那本书里，
+     章文字被推右 8px、与节的缩进差被吃成 6px（两本书就不一致了）。 */
+  padding: 7px 0 !important;
 }
 .md-nav--primary .md-nav__container > .md-nav__link {
   font-size: 14.5px;
@@ -626,17 +661,17 @@ body,
 .md-nav--primary .md-nav__container > label.md-nav__link { padding-left: 0; }
 .md-nav--primary .md-nav__item--active > .md-nav__container,
 .md-nav--primary .md-nav__item--nested.md-nav__item--active > .md-nav__container {
-  border-left-color: var(--bk-accent);
+  box-shadow: inset 2px 0 0 var(--bk-accent);
 }
 .md-nav--primary .md-nav__container > .md-nav__link.md-nav__link--active { color: var(--bk-accent); }
 
 /* 节：二级。小一号、字重常规、颜色更淡、缩进一格（Material 自带缩进，这里只调字） */
-.md-nav--primary .md-nav .md-nav__item > .md-nav__link {
+/* 节：叶子一律缩进一格（章内所有层级的叶子都吃同一条规则） */
+.md-nav--primary nav[data-md-level] .md-nav__item:not(.md-nav__item--nested) > .md-nav__link {
   font-size: 13.5px;
   font-weight: 400;
   color: var(--bk-fg-soft);
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 5px 0;
 }
 .md-nav--primary .md-nav .md-nav__item--active > .md-nav__link {
   color: var(--bk-accent);
@@ -660,6 +695,19 @@ body,
    否则会一路找到带 position 的祖先，被甩到侧栏最左边（实测过）。 */
 .md-nav--primary .md-nav__link { position: relative; }
 .md-nav--primary .md-nav .md-nav__item { position: relative; }
+
+/* ---------------------------------------------------------------------------
+   9b-2) 表格窄屏：让表格**在自己框里横滑**，不要顶宽整页
+   ---------------------------------------------------------------------------
+   线上实测：390px 下 table 418px → 父 .md-typeset__table 450px 且 overflow visible，
+   把 .md-typeset__scrollwrap 一起顶出视口，整页可左右拖 16px。 */
+.md-typeset__scrollwrap,
+.md-typeset__table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+.md-typeset table:not([class]) { display: table; min-width: 100%; }
 
 /* ---------------------------------------------------------------------------
    9c) 顶部状态条：窄屏处理

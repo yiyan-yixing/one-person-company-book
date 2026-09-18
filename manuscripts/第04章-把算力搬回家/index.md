@@ -3,7 +3,7 @@ status: growing
 ---
 
 <div class="bk-chapter-head">
-<div class="bk-chapter-num">第四章 · 引子</div>
+<div class="bk-chapter-num">第四章</div>
 <h1 class="bk-chapter-name">把算力搬回家<span class="bk-chapter-theme">本地模型</span></h1>
 <p class="bk-chapter-meta">本章 6 节 · 已发布 3 节 · 全书 24 节 · 已发布 7 节</p>
 </div>

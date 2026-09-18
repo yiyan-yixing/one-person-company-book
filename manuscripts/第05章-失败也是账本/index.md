@@ -3,7 +3,7 @@ status: planned
 ---
 
 <div class="bk-chapter-head">
-<div class="bk-chapter-num">第五章 · 引子</div>
+<div class="bk-chapter-num">第五章</div>
 <h1 class="bk-chapter-name">失败也是账本</h1>
 <p class="bk-chapter-meta">本章 3 节 · 已发布 0 节 · 全书 24 节 · 已发布 7 节</p>
 </div>

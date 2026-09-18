@@ -24,7 +24,7 @@
   /* 墨 */
   --bk-fg: #241F1A;
   --bk-fg-soft: #6A6055;
-  --bk-fg-faint: #9A8F82;
+  --bk-fg-faint: #706A60;   /* 实测：原 #9A8F82 在纸底上只有 2.99:1，承载节号/进度这类真实信息不够 */
   /* 线：方向 B 的层次全在这两根上 */
   --bk-line: #E4DACB;
   --bk-line-strong: #C9B9A3;
@@ -84,7 +84,7 @@
   --bk-bg-code: #141009;
   --bk-fg: #DED6C9;
   --bk-fg-soft: #A79C8B;
-  --bk-fg-faint: #7C7263;
+  --bk-fg-faint: #968C7E;   /* 深色同样往亮调，保证 ≥4.5:1 */
   --bk-line: #2E2820;
   --bk-line-strong: #413A2E;
   --bk-brand: #2A2117;

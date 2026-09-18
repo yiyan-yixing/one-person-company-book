@@ -3,7 +3,7 @@ status: growing
 ---
 
 <div class="bk-chapter-head">
-<div class="bk-chapter-num">第一章 · 引子</div>
+<div class="bk-chapter-num">第一章</div>
 <h1 class="bk-chapter-name">起点<span class="bk-chapter-theme">一个人干不过来</span></h1>
 <p class="bk-chapter-meta">本章 2 节 · 已发布 1 节 · 全书 24 节 · 已发布 7 节</p>
 </div>

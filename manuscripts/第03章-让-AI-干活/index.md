@@ -3,7 +3,7 @@ status: growing
 ---
 
 <div class="bk-chapter-head">
-<div class="bk-chapter-num">第三章 · 引子</div>
+<div class="bk-chapter-num">第三章</div>
 <h1 class="bk-chapter-name">让 AI 干活<span class="bk-chapter-theme">真实任务链</span></h1>
 <p class="bk-chapter-meta">本章 4 节 · 已发布 1 节 · 全书 24 节 · 已发布 7 节</p>
 </div>
