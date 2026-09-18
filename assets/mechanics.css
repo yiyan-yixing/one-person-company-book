@@ -708,7 +708,15 @@ body,
   line-height: 1.5;
   overflow: visible;
 }
-.md-nav--primary .md-nav__title .md-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 面板标题最多折两行：分卷名（如「上篇 · 零件：从一个 Token，到一个模型」）
+   在抽屉里被 nowrap 截掉 72px —— 与桌面侧栏"宁可折行不要省略号"的处理保持一致。 */
+.md-nav--primary .md-nav__title .md-ellipsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow: hidden;
+}
 .md-nav--primary .md-nav .md-nav__item { position: relative; }
 
 /* ---------------------------------------------------------------------------

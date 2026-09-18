@@ -1182,3 +1182,14 @@ body { background-color: var(--bk-bg); }
   white-space: nowrap;
 }
 .md-typeset .bk-toc__chapter-meta { flex: 0 0 auto; }
+
+/* 最窄屏（手机）：章名允许折两行 —— 390px 下「第十一章 Knowledge / Graph · Memory」
+   会被省略号吃掉 80px。手机上一行放不下就折行，比丢字好。 */
+@media (max-width: 430px) {
+  .md-typeset .bk-toc__chapter-name {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
