@@ -13,8 +13,8 @@ status: planned
 ## 本章目录
 
 <div class="bk-sections">
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">22</span><span class="bk-section-row__title"><a href="22-一人公司的边界.md">一人公司的边界：能有多大</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">23</span><span class="bk-section-row__title"><a href="23-AI员工之上还是人.md">AI 员工之上，还是人</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">22</span><span class="bk-section-row__title"><a href="22-一人公司的边界.html">一人公司的边界：能有多大</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">23</span><span class="bk-section-row__title"><a href="23-AI员工之上还是人.html">AI 员工之上，还是人</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
 </div>
 
 ## 本章收尾栏目

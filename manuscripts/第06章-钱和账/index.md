@@ -13,8 +13,8 @@ status: planned
 ## 本章目录
 
 <div class="bk-sections">
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">20</span><span class="bk-section-row__title"><a href="20-现金流追踪.md">现金流追踪：一个人的公司怎么记账</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">21</span><span class="bk-section-row__title"><a href="21-老板的垫付.md">老板的垫付：公司的钱是老板的钱</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">20</span><span class="bk-section-row__title"><a href="20-现金流追踪.html">现金流追踪：一个人的公司怎么记账</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">21</span><span class="bk-section-row__title"><a href="21-老板的垫付.html">老板的垫付：公司的钱是老板的钱</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
 </div>
 
 ## 本章收尾栏目

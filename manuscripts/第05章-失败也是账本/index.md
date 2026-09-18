@@ -13,9 +13,9 @@ status: planned
 ## 本章目录
 
 <div class="bk-sections">
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">17</span><span class="bk-section-row__title"><a href="17-17个策略全失败.md">17 个策略全失败</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">18</span><span class="bk-section-row__title"><a href="18-8个微调7个No-Go.md">8 个微调，7 个 No-Go</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
-<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">19</span><span class="bk-section-row__title"><a href="19-全料就绪却没发出去.md">全料就绪，却没发出去</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">17</span><span class="bk-section-row__title"><a href="17-17个策略全失败.html">17 个策略全失败</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">18</span><span class="bk-section-row__title"><a href="18-8个微调7个No-Go.html">8 个微调，7 个 No-Go</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
+<div class="bk-section-row bk-section-row--writing"><span class="bk-section-row__num">19</span><span class="bk-section-row__title"><a href="19-全料就绪却没发出去.html">全料就绪，却没发出去</a></span><span class="bk-section-row__state"><span class="bk-state-dot bk-state-dot--writing"></span>写作中</span></div>
 </div>
 
 ## 本章收尾栏目
