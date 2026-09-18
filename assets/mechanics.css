@@ -20,8 +20,9 @@
   --bk-font-sans: "PingFang SC", "HarmonyOS Sans SC", "Source Han Sans SC",
     "Noto Sans CJK SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui,
     -apple-system, "Segoe UI", Roboto, sans-serif;
-  --bk-font-serif: "Songti SC", "STSong", "Source Han Serif SC",
-    "Noto Serif CJK SC", "SimSun", Georgia, "Times New Roman", serif;
+  --bk-font-serif: "Songti SC", "STSong", "Source Han Serif SC", "Source Han Serif CN",
+    "Noto Serif SC", "Noto Serif CJK SC", "FangSong", "STFangsong", "SimSun",
+    Georgia, "Times New Roman", serif;
   --bk-font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace,
     "Cascadia Mono", Menlo, Consolas, "Source Han Mono SC",
     "Noto Sans Mono CJK SC", monospace;
@@ -655,6 +656,9 @@ body,
   background: var(--bk-accent);
   transform: translateY(-50%);
 }
+/* 圆点用绝对定位挂在 link 上：link 本身是 static，得给它一个定位上下文，
+   否则会一路找到带 position 的祖先，被甩到侧栏最左边（实测过）。 */
+.md-nav--primary .md-nav__link { position: relative; }
 .md-nav--primary .md-nav .md-nav__item { position: relative; }
 
 /* ---------------------------------------------------------------------------
