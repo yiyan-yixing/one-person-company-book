@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+  <!-- favicon 不能吃 currentColor，也不能吃掉主题切换：所以垫一张"纸"，
+       记号写死品牌墨色。两本书共用同一张 favicon（同一家），书内的 accent 由 CSS 决定。 -->
+  <rect width="32" height="32" rx="5" fill="#FBF8F3"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="4.5" stroke="#E4DACB"/>
+  <circle cx="7" cy="25" r="1.9" fill="#4A3B2A"/>
+  <path d="M7 25 25.2 6.8" stroke="#4A3B2A" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M13.6 25 25.2 13.4" stroke="#4A3B2A" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+  <path d="M20.2 25 25.2 19.9" stroke="#4A3B2A" stroke-width="1.2" stroke-linecap="round" opacity=".34"/>
+  <circle cx="25.2" cy="6.8" r="2.3" stroke="#4A3B2A" stroke-width="1.2" opacity=".9"/>
+</svg>

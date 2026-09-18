@@ -1,0 +1,86 @@
+{#-
+  方向 B ·「账簿」封面 —— 做成书的扉页 / 书名页。
+  结构原则：大衬线书名 + 双细线分栏 + 印章式小标记；通篇零实色块。
+  数据全部来自 mkdocs.yml 的 extra.book / extra.chapters，不写死书名；
+  内部链接一律走 | url 过滤器。
+
+  ⚠ 这里是「片段」而不是「整页」：main.html 用 include 把它放进 content 块。
+  共用机制层的 templates/home.html 顶部写的是 extends base.html —— 那会让整份
+  base.html 被再渲染一遍塞进正文里（实测：封面页出现两个 html 根、两个 md-header，
+  而且第二份 theme.css 链接排在 extrahead 之后，把书 B 的靛青又刷回书 A 的朱砂）。
+  所以方向层这份只能不带 extends，见交付报告「机制层缺陷」一节。
+-#}
+{% set b = config.extra.book %}
+{% set pct = (100 * b.ready / b.total) | round | int %}
+<div class="bk-cover">
+
+  {#- ① 页眉：品牌印记（左） · 品类 kicker（右） -#}
+  <div class="bk-cover__top">
+    <span class="bk-cover__imprint"><span class="bk-seal" aria-hidden="true"></span>{{ b.imprint }}</span>
+    <span class="bk-cover__kicker">{{ b.kicker }}</span>
+  </div>
+  <hr class="bk-cover__rule">
+
+  {#- ② 书名页主体 -#}
+  <div class="bk-cover__main">
+    <span class="bk-cover__mark" aria-hidden="true"></span>
+    <h1 class="bk-cover__title">{{ b.title }}</h1>
+    <p class="bk-cover__sub">{{ b.subtitle }}</p>
+    <p class="bk-cover__lede">{{ b.lede }}</p>
+
+    <div class="bk-cover__actions">
+      <a class="bk-cover__cta" href="{{ b.prelude_cta | url }}">开始阅读</a>
+      <a class="bk-cover__link" href="{{ '目录大纲.html' | url }}">全书目录</a>
+      <a class="bk-cover__link" href="{{ b.repo }}">源码与勘误</a>
+      <span class="bk-cover__link bk-cover__link--muted" title="排版定稿后发布，现在不提供下载">PDF（整理中）</span>
+    </div>
+  </div>
+
+  {#- ③ 全书账目：数字在上，进度在下 -#}
+  <div class="bk-cover__ledger">
+    <div class="bk-cover__stats">
+      <span><b>{{ b.chapters }}</b>章</span>
+      <span><b>{{ b.total }}</b>节</span>
+      <span><b>{{ b.ready }}</b>节已落笔</span>
+      <span class="bk-cover__state">写作中 · 分批发布</span>
+    </div>
+    <div class="bk-progress">
+      <span class="bk-progress__bar"><span class="bk-progress__fill" style="width:{{ pct }}%"></span></span>
+      <span class="bk-mini">{{ pct }}% 已发布</span>
+    </div>
+  </div>
+  <hr class="bk-cover__rule">
+
+  {#- ④ 分卷章网格：像目录页一样带引线，右列是账（待写 / 在写 / 已发布 x/y） -#}
+  <div class="bk-toc">
+    {% set ns = namespace(part="") %}
+    {% for ch in config.extra.chapters %}
+      {% if ch.part != ns.part %}
+        {% set ns.part = ch.part %}
+        <div class="bk-toc__part">{{ ch.part }}</div>
+      {% endif %}
+      {% if ch.ready == ch.total and ch.total > 0 %}
+        {% set state, dot, label = "done", "done", "已发布 " ~ ch.ready ~ "/" ~ ch.total %}
+      {% elif ch.ready > 0 %}
+        {% set state, dot, label = "growing", "growing", "在写 · 已发布 " ~ ch.ready ~ "/" ~ ch.total %}
+      {% else %}
+        {% set state, dot, label = "planned", "planned", "待写 · 共 " ~ ch.total ~ " 节" %}
+      {% endif %}
+      <a class="bk-toc__chapter bk-toc__chapter--{{ state }}" href="{{ ch.url | url }}">
+        <span class="bk-toc__chapter-num">{{ ch.num }}</span>
+        <span class="bk-toc__chapter-name">{{ ch.name }}</span>
+        <span class="bk-toc__leader" aria-hidden="true"></span>
+        <span class="bk-toc__chapter-meta"><span class="bk-state-dot bk-state-dot--{{ dot }}"></span>{{ label }}</span>
+      </a>
+    {% endfor %}
+  </div>
+  <hr class="bk-cover__rule">
+
+  {#- ⑤ 页脚：同一家的另一本 + 授权署名 -#}
+  <div class="bk-cover__foot">
+    <a class="bk-cover__sibling" href="{{ b.sibling_url }}">
+      <span class="bk-mini">同系列另一本</span>《{{ b.sibling_title }}》
+    </a>
+    <span class="bk-mini">正文以 CC BY-NC-SA 4.0 授权 · 保留署名「{{ b.imprint }}」 · 勘误走 GitHub Issue</span>
+  </div>
+</div>

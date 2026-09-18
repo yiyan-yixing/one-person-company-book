@@ -1,0 +1,43 @@
+{#-
+  方向 B ·「账簿」全局骨架覆写
+    ① extrahead：把「本书的 accent」注入 CSS 变量 —— 两册共用一套纸/线/墨，
+       只有 accent 分朱砂（书 A）/ 靛青（书 B）。这里不写死书名，
+       只按 config.extra.book.key 取色；管道将来可以直接在 mkdocs.yml 里发
+       extra.book.accent / accent_dark，这两行就能退化成一句。
+    ② announce：顶部常驻状态条 ——「这是一本在长的书」，带一枚极细的进度线。
+    ③ content：首页 -> home.html（书的扉页）；其它页走 Material 默认。
+-#}
+{% extends "base.html" %}
+
+{% block extrahead %}
+{% set b = config.extra.book %}
+<style>
+{% if b.key == 'b' %}
+  :root { --bk-accent: #2F5568; }                                  /* 靛青 */
+  [data-md-color-scheme="slate"] { --bk-accent: #7FA6B8; }         /* 深色提亮 */
+{% else %}
+  :root { --bk-accent: #A93B2C; }                                  /* 朱砂 */
+  [data-md-color-scheme="slate"] { --bk-accent: #E08A72; }         /* 深色提亮 */
+{% endif %}
+</style>
+{% endblock %}
+
+{% block announce %}
+{% set b = config.extra.book %}
+{% set pct = (100 * b.ready / b.total) | round | int %}
+<div class="bk-announce">
+  <span class="bk-announce__dot"></span>
+  <span class="bk-announce__text">这是一本在长的书 · 《{{ b.title }}》已发布 <b>{{ b.ready }}</b> / {{ b.total }} 节</span>
+  <span class="bk-announce__bar"><span class="bk-announce__fill" style="width:{{ pct }}%"></span></span>
+  <span class="bk-announce__pct">{{ pct }}%</span>
+  <a class="bk-announce__link" href="{{ 'index.html' | url }}">章节导读与进度 →</a>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if page.is_homepage %}
+  {% include "home.html" %}
+{% else %}
+  {{ super() }}
+{% endif %}
+{% endblock %}

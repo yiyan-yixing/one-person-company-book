@@ -1,44 +1,185 @@
-site_name: 一人公司：把一个人的边界，扩成一家公司
-site_description: 一个人，怎么用 AI 把「干不过来」变成一家公司——不讲原理，讲过程与账本
-site_url: https://yiyan-yixing.github.io/one-person-company-book/
-repo_url: https://github.com/yiyan-yixing/one-person-company-book
-repo_name: yiyan-yixing/one-person-company-book
-docs_dir: .site-src
-site_dir: .site-build
-use_directory_urls: false
-theme:
-  name: material
-  language: zh
-  features:
-    - navigation.top
-    - navigation.footer
-    - search.highlight
-    - search.suggest
-    - content.code.copy
-  palette:
-    - scheme: default
-      primary: blue grey
-      accent: teal
-      toggle:
-        icon: material/weather-night
-        name: 切换深色模式
-    - scheme: slate
-      primary: blue grey
-      accent: teal
-      toggle:
-        icon: material/weather-sunny
-        name: 切换浅色模式
-plugins:
-  - search:
-      lang: [zh, en]
-markdown_extensions:
-  - admonition
-  - attr_list
-  - footnotes
-  - tables
-  - toc:
-      permalink: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify
+"docs_dir": ".site-src"
+"site_dir": ".site-build"
+"use_directory_urls": false
+"theme":
+  "name": "material"
+  "language": "zh"
+  "font": false
+  "custom_dir": "overrides"
+  "logo": "assets/mark.svg"
+  "favicon": "assets/favicon.svg"
+  "palette":
+    - "scheme": "default"
+      "primary": "custom"
+      "accent": "custom"
+      "toggle":
+        "icon": "material/weather-night"
+        "name": "浅色 / 深色"
+    - "scheme": "slate"
+      "primary": "custom"
+      "accent": "custom"
+      "toggle":
+        "icon": "material/weather-sunny"
+        "name": "深色 / 浅色"
+  "features":
+    - "navigation.instant"
+    - "navigation.tracking"
+    - "navigation.indexes"
+    - "navigation.top"
+    - "navigation.footer"
+    - "toc.follow"
+    - "search.highlight"
+    - "search.suggest"
+    - "search.share"
+    - "content.code.copy"
+    - "content.tabs.link"
+"plugins":
+  - "search":
+      "lang":
+        - "zh"
+        - "en"
+"markdown_extensions":
+  - "admonition"
+  - "attr_list"
+  - "md_in_html"
+  - "footnotes"
+  - "tables"
+  - "toc":
+      "permalink": true
+      "slugify": !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
-  - pymdownx.superfences
+  - "pymdownx.superfences"
+  - "pymdownx.highlight":
+      "anchor_linenums": true
+  - "pymdownx.inlinehilite"
+  - "pymdownx.details"
+  - "pymdownx.tabbed":
+      "alternate_style": true
+  - "pymdownx.caret"
+  - "pymdownx.mark"
+  - "pymdownx.tilde"
+  - "pymdownx.smartsymbols"
+"extra_css":
+  - "assets/mechanics.css"
+  - "assets/theme.css"
+"site_name": "一人公司：把一个人的边界，扩成一家公司"
+"site_description": "一个人，怎么用 AI 把「干不过来」变成一家公司——不讲原理，讲过程与账本"
+"site_url": "https://yiyan-yixing.github.io/one-person-company-book/"
+"repo_url": "https://github.com/yiyan-yixing/one-person-company-book"
+"repo_name": "yiyan-yixing/one-person-company-book"
+"copyright": "本书采用 CC BY-NC-SA 4.0 许可（署名 · 非商业性使用 · 相同方式共享）· 署名「言行致远」"
+"nav":
+  - "封面": "index.md"
+  - "全书目录": "目录大纲.md"
+  - "0. 引子：一个人，为什么是一家公司": "正文/00-引子.md"
+  - "第一章 起点":
+      - "章节导读": "正文/第01章-起点/index.md"
+      - "1. 一个人干 14 件事的解法": "正文/第01章-起点/01-一个人干14件事的解法.md"
+      - "2. 幻觉：以为接个模型就完事": "正文/第01章-起点/02-幻觉-以为接个模型就完事.md"
+  - "第二章 组织":
+      - "章节导读": "正文/第02章-组织/index.md"
+      - "3. 一张路由表": "正文/第02章-组织/03-一张路由表.md"
+      - "4. AOSI 七层模型：把 AI 公司拆成 7 层": "正文/第02章-组织/04-AOSI七层模型.md"
+      - "5. Skill 就是 AI 的工艺卡": "正文/第02章-组织/05-Skill就是AI的工艺卡.md"
+      - "6. AI 员工花名册：50+ 个 agent": "正文/第02章-组织/06-AI员工花名册.md"
+  - "第三章 让 AI 干活":
+      - "章节导读": "正文/第03章-让-AI-干活/index.md"
+      - "7. 11 个量化 Agent 替我操盘": "正文/第03章-让-AI-干活/07-11个量化Agent替我操盘.md"
+      - "8. 你的 AI Agent 需要睡觉：非对称自治": "正文/第03章-让-AI-干活/08-AI-Agent需要睡觉.md"
+      - "9. Agent 不缺智商，缺的是记忆": "正文/第03章-让-AI-干活/09-Agent不缺智商缺的是记忆.md"
+      - "10. 内容工厂：从选题到发布": "正文/第03章-让-AI-干活/10-内容工厂-从选题到发布.md"
+  - "第四章 把算力搬回家":
+      - "章节导读": "正文/第04章-把算力搬回家/index.md"
+      - "11. 我把大模型装进了手机": "正文/第04章-把算力搬回家/11-我把大模型装进了手机.md"
+      - "12. 48GB 的 Mac，到底能跑多少 AI": "正文/第04章-把算力搬回家/12-48GB的Mac能跑多少AI.md"
+      - "13. 在 48GB Mac 上跑通 284B": "正文/第04章-把算力搬回家/13-在48GB-Mac上跑通284B.md"
+      - "14. 大模型住进硬盘：744B 进 25GB 笔记本": "正文/第04章-把算力搬回家/14-744B进25GB笔记本.md"
+      - "15. 本地模型升级实录：Qwen3.8-27B 当日常主力": "正文/第04章-把算力搬回家/15-Qwen3.8-27B当日常主力.md"
+      - "16. 把 125B MoE 压进 16GB 内存": "正文/第04章-把算力搬回家/16-125B-MoE压进16GB内存.md"
+  - "第五章 失败也是账本":
+      - "章节导读": "正文/第05章-失败也是账本/index.md"
+      - "17. 17 个策略全失败": "正文/第05章-失败也是账本/17-17个策略全失败.md"
+      - "18. 8 个微调，7 个 No-Go": "正文/第05章-失败也是账本/18-8个微调7个No-Go.md"
+      - "19. 全料就绪，却没发出去": "正文/第05章-失败也是账本/19-全料就绪却没发出去.md"
+  - "第六章 钱和账":
+      - "章节导读": "正文/第06章-钱和账/index.md"
+      - "20. 现金流追踪：一个人的公司怎么记账": "正文/第06章-钱和账/20-现金流追踪.md"
+      - "21. 老板的垫付：公司的钱是老板的钱": "正文/第06章-钱和账/21-老板的垫付.md"
+  - "第七章 收束":
+      - "章节导读": "正文/第07章-收束/index.md"
+      - "22. 一人公司的边界：能有多大": "正文/第07章-收束/22-一人公司的边界.md"
+      - "23. AI 员工之上，还是人": "正文/第07章-收束/23-AI员工之上还是人.md"
+"extra":
+  "status":
+    "done": "本节已发布"
+    "writing": "本节写作中，尚未发布"
+    "growing": "本章在写，部分节已发布"
+    "planned": "本章尚未开始"
+  "book":
+    "key": "b"
+    "slug": "one-person-company-book"
+    "gap": "过程与账本"
+    "kicker": "一人公司 · 过程与账本"
+    "title": "一人公司"
+    "subtitle": "把一个人的边界，扩成一家公司"
+    "lede": "一个人怎么用 AI 把「干不过来」变成一家公司。不讲原理，讲过程与账本：做成了什么、踩了哪些坑、账上长什么样。"
+    "imprint": "言行致远"
+    "repo": "https://github.com/yiyan-yixing/one-person-company-book"
+    "site_url": "https://yiyan-yixing.github.io/one-person-company-book/"
+    "prelude_cta": "正文/00-引子.md"
+    "ready": 7
+    "total": 24
+    "chapters": 7
+    "sibling_title": "AI System 原理 —— 从一个 Token，到一个 AI System"
+    "sibling_url": "https://yiyan-yixing.github.io/ai-system-book/"
+  "chapters":
+    - "num": "第一章"
+      "name": "起点"
+      "theme": "一个人干不过来"
+      "part": "引子"
+      "url": "正文/第01章-起点/index.md"
+      "ready": 1
+      "total": 2
+    - "num": "第二章"
+      "name": "组织"
+      "theme": "给混乱装个路由器"
+      "part": "引子"
+      "url": "正文/第02章-组织/index.md"
+      "ready": 2
+      "total": 4
+    - "num": "第三章"
+      "name": "让 AI 干活"
+      "theme": "真实任务链"
+      "part": "引子"
+      "url": "正文/第03章-让-AI-干活/index.md"
+      "ready": 1
+      "total": 4
+    - "num": "第四章"
+      "name": "把算力搬回家"
+      "theme": "本地模型"
+      "part": "引子"
+      "url": "正文/第04章-把算力搬回家/index.md"
+      "ready": 3
+      "total": 6
+    - "num": "第五章"
+      "name": "失败也是账本"
+      "theme": ""
+      "part": "引子"
+      "url": "正文/第05章-失败也是账本/index.md"
+      "ready": 0
+      "total": 3
+    - "num": "第六章"
+      "name": "钱和账"
+      "theme": "一人公司的真实账本"
+      "part": "引子"
+      "url": "正文/第06章-钱和账/index.md"
+      "ready": 0
+      "total": 2
+    - "num": "第七章"
+      "name": "收束"
+      "theme": ""
+      "part": "引子"
+      "url": "正文/第07章-收束/index.md"
+      "ready": 0
+      "total": 2

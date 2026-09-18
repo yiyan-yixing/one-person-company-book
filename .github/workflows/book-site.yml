@@ -30,12 +30,13 @@ jobs:
           set -euo pipefail
           rm -rf .site-src
           mkdir -p .site-src/正文
-          cp README.md .site-src/index.md
-          cp manuscripts/*.md .site-src/正文/
+          # 递归拷贝：顶层前置稿 + 第NN章-<章名>/ 各章的节 + assets/
+          # 首页是脚本生成的封面页 index.md（不再是 README.md 的拷贝）
+          cp -r manuscripts/. .site-src/正文/
           cp archive/outlines/outline.md .site-src/目录大纲.md
-          if [ -d manuscripts/assets ]; then
-            cp -r manuscripts/assets .site-src/正文/assets
-          fi
+          cp index.md .site-src/index.md
+          # 设计资产必须落在 docs_dir 里，MkDocs 才会把它们搬进 site/
+          cp -r assets .site-src/assets
       - name: Build site
         run: mkdocs build
       # 首次上线前，Pages 需要人工启用一次：仓库 Settings → Pages → Source 选

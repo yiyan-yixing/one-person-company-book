@@ -1,0 +1,1166 @@
+/* ============================================================================
+   方向 B ·「账簿」Ledger —— 纸与线
+   ----------------------------------------------------------------------------
+   机制层（mechanics.css）负责中文排版与 .bk-* 语义骨架；这一层只做方向 B 的
+   视觉身份，规则只有三条：
+
+     ① 层次靠「线」：1px 细线 + 3px double 双细线 + 留白。几乎不用实色块。
+     ② 纸与墨是主角：暖白纸底 / 暖黑深色，标题衬线、正文无衬线。
+     ③ 彩色预算只给 accent：章号印记、状态点、强调、下划线。
+        朱砂（书 A）/ 靛青（书 B）由 overrides/main.html 的 extrahead 注入，
+        本文件不写「两本书」分支 —— 两册共用同一套纸 / 线 / 墨。
+
+   锚点：TOKENS / 纸面 / 字号阶梯 / 正文元素 / 语义件 / 侧栏 / 封面 / 杂项
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   TOKENS · 浅色：暖白纸
+   --------------------------------------------------------------------------- */
+:root {
+  /* 纸 */
+  --bk-bg: #FBF8F3;
+  --bk-bg-soft: #F4EFE6;
+  --bk-bg-code: #F1EBE0;
+  /* 墨 */
+  --bk-fg: #241F1A;
+  --bk-fg-soft: #6A6055;
+  --bk-fg-faint: #9A8F82;
+  /* 线：方向 B 的层次全在这两根上 */
+  --bk-line: #E4DACB;
+  --bk-line-strong: #C9B9A3;
+  /* 品牌墨：封面印记 / 页眉记号（两册同一个色） */
+  --bk-brand: #4A3B2A;
+  /* accent：默认朱砂（书 A）。书 B 的靛青由 main.html 注入 */
+  --bk-accent: #A93B2C;
+  --bk-accent-soft: rgba(169, 59, 44, 0.10);
+  --bk-accent-soft: color-mix(in srgb, var(--bk-accent) 10%, transparent);
+
+  /* 状态点：账上只有两种笔迹 —— 已落墨（accent 实心）/ 未落墨（空心） */
+  --bk-status-done: var(--bk-accent);
+  --bk-status-writing: var(--bk-fg-faint);
+
+  /* 字号阶梯（规格：章 44 / 节 31 / 小节 24 / 小标题 19.5 / 正文 17 / 注 14 / 签 12.5） */
+  --bk-fs-body: 17px;
+  --bk-fs-h1: 31px;
+  --bk-fs-h2: 24px;
+  --bk-fs-h3: 19.5px;
+  --bk-fs-h4: 17px;
+  --bk-fs-small: 14px;
+  --bk-fs-mini: 12.5px;
+  --bk-fs-code: 15px;
+  --bk-fs-chapter: 44px;
+  --bk-fs-cover: 58px;
+
+  /* 行高与留白：纸书的阅读节奏 */
+  --bk-lh-body: 1.9;
+  --bk-lh-tight: 1.45;
+  --bk-gap-para: 1.05em;
+  --bk-gap-h2-top: 54px;
+  --bk-gap-h2-bottom: 20px;
+  --bk-gap-h3-top: 34px;
+  --bk-gap-h3-bottom: 14px;
+
+  /* 字重：标题 600（宋体家族会落到 Bold），强调 600 */
+  --bk-w-body: 400;
+  --bk-w-strong: 600;
+  --bk-w-head: 600;
+
+  /* 版心：正文 704px ≈ 41 字/行；扉页与章导语页可以更宽一点 */
+  --bk-measure: 704px;
+  --bk-measure-wide: 788px;
+  --bk-page-max: 1560px;
+
+  /* 账簿不圆角：纸是方的 */
+  --bk-radius: 2px;
+  --bk-radius-lg: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   TOKENS · 深色：暖黑纸（不是反色 —— 保留暖调，线更暗、accent 提亮）
+   --------------------------------------------------------------------------- */
+[data-md-color-scheme="slate"] {
+  --bk-bg: #191510;
+  --bk-bg-soft: #211C15;
+  --bk-bg-code: #141009;
+  --bk-fg: #DED6C9;
+  --bk-fg-soft: #A79C8B;
+  --bk-fg-faint: #7C7263;
+  --bk-line: #2E2820;
+  --bk-line-strong: #413A2E;
+  --bk-brand: #2A2117;
+  --bk-accent: #E08A72; /* 书 B 由 main.html 覆写成 #7FA6B8 */
+  --bk-accent-soft: rgba(224, 138, 114, 0.13);
+  --bk-accent-soft: color-mix(in srgb, var(--bk-accent) 13%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   TOKENS · 接管 Material 的调色板变量
+   （Material 把调色板写在 :root / [data-md-color-scheme=…] 上，body 上那份
+     会盖掉从 html 继承的值，所以这里必须写 :root > *）
+   --------------------------------------------------------------------------- */
+:root > * {
+  --md-primary-fg-color: var(--bk-brand);
+  --md-primary-fg-color--light: var(--bk-fg-soft);
+  --md-primary-fg-color--dark: var(--bk-brand);
+  --md-primary-bg-color: var(--bk-bg);
+  --md-primary-bg-color--light: var(--bk-fg-soft);
+
+  --md-accent-fg-color: var(--bk-accent);
+  --md-accent-fg-color--transparent: var(--bk-accent-soft);
+  --md-accent-bg-color: var(--bk-bg);
+  --md-accent-bg-color--light: var(--bk-fg-soft);
+
+  --md-default-fg-color: var(--bk-fg);
+  --md-default-fg-color--light: var(--bk-fg-soft);
+  --md-default-fg-color--lighter: var(--bk-fg-faint);
+  --md-default-fg-color--lightest: var(--bk-line);
+
+  --md-default-bg-color: var(--bk-bg);
+  --md-typeset-color: var(--bk-fg);
+  --md-typeset-a-color: var(--bk-accent);
+  --md-typeset-table-color: var(--bk-line);
+  --md-typeset-table-color--light: var(--bk-line);
+
+  --md-code-fg-color: var(--bk-fg);
+  --md-code-bg-color: var(--bk-bg-code);
+  --md-code-bg-color--light: var(--bk-bg-code);
+  --md-code-bg-color--lighter: var(--bk-bg-code);
+
+  --md-footer-bg-color: var(--bk-bg-soft);
+  --md-footer-bg-color--dark: var(--bk-bg-code);
+  --md-footer-fg-color: var(--bk-fg-soft);
+  --md-footer-fg-color--light: var(--bk-fg-soft);
+  --md-footer-fg-color--lighter: var(--bk-fg-faint);
+
+  /* 账簿没有投影：层次由线负责，不由阴影负责 */
+  --md-shadow-z1: none;
+  --md-shadow-z2: none;
+  --md-shadow-z3: none;
+}
+
+/* ===========================================================================
+   纸面 · 全局壳体（页眉 / 状态条 / 页脚 / 搜索 / 抽屉）
+   ========================================================================= */
+body { background-color: var(--bk-bg); }
+
+/* --- 顶部常驻状态条：「这是一本在长的书」 ------------------------------- */
+.md-banner {
+  background-color: var(--bk-bg-soft);
+  color: var(--bk-fg-soft);
+  border-bottom: 1px solid var(--bk-line);
+  box-shadow: none;
+}
+.md-typeset .bk-announce {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.md-typeset .bk-announce__dot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 0; /* 账簿的记号是方的 */
+  background: var(--bk-accent);
+  opacity: 1;
+  margin-right: 0;
+}
+.md-typeset .bk-announce b {
+  font-weight: 600;
+  color: var(--bk-fg);
+  font-variant-numeric: tabular-nums;
+}
+.md-announce,
+.bk-announce__text { color: var(--bk-fg-soft); }
+.bk-announce__bar {
+  flex: 0 0 110px;
+  height: 2px;
+  background: var(--bk-line-strong);
+  overflow: hidden;
+}
+.bk-announce__fill { display: block; height: 100%; background: var(--bk-accent); }
+.bk-announce__pct {
+  color: var(--bk-fg-faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.md-typeset .bk-announce__link {
+  margin-left: auto;
+  color: var(--bk-fg-faint);
+  border-bottom: 0;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.md-typeset .bk-announce__link:hover {
+  color: var(--bk-accent);
+  background: transparent;
+}
+
+/* --- 页眉：纸底 + 一条细线，不用实色块 ---------------------------------- */
+.md-header {
+  background-color: var(--bk-bg);
+  color: var(--bk-fg);
+  box-shadow: none;
+  border-bottom: 1px solid var(--bk-line-strong);
+}
+.md-header--shadow { box-shadow: none; border-bottom-color: var(--bk-line-strong); }
+.md-header__title { color: var(--bk-fg); }
+.md-header__topic {
+  font-family: var(--bk-font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.md-header__button { color: var(--bk-fg-soft); }
+.md-header__button:hover { color: var(--bk-accent); opacity: 1; }
+.md-header__option { color: var(--bk-fg-soft); }
+
+/* 品牌标记：<img> / CSS url() 里的 currentColor 都落成纯黑（浏览器不给 <img> 传
+   颜色上下文），CSS mask 在这个环境里会把整个元素裁没（实测四种写法全灭），
+   所以这里用 background-image + 一处 invert 处理深色。标记本来就是单色细线，
+   纯黑在暖纸上就是墨色，和 --bk-brand(#4A3B2A) 肉眼几乎无差。 */
+.md-header__button.md-logo {
+  background-image: url("mark.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.md-header__button.md-logo img { opacity: 0; }
+[data-md-color-scheme="slate"] .md-header__button.md-logo { filter: invert(1) opacity(0.82); }
+[data-md-color-scheme="slate"] .md-nav__title .md-logo img { filter: invert(1) opacity(0.8); }
+
+/* 仓库入口 */
+.md-source { color: var(--bk-fg-soft); }
+.md-source__repository { font-size: var(--bk-fs-mini); letter-spacing: 0.04em; }
+.md-source:hover .md-source__repository { color: var(--bk-accent); }
+.md-source__icon svg { fill: currentColor; }
+
+/* --- 搜索：把 Material 的浮层收成纸上一格 --------------------------------- */
+.md-search__form {
+  background-color: var(--bk-bg-soft);
+  border: 1px solid var(--bk-line);
+  border-radius: 2px;
+  box-shadow: none;
+}
+.md-search__form:hover { background-color: var(--bk-bg-code); }
+.md-search__input { color: var(--bk-fg); }
+.md-search__input::placeholder { color: var(--bk-fg-faint); }
+.md-search__icon { color: var(--bk-fg-faint); }
+.md-search__output,
+.md-search-result { background-color: var(--bk-bg); box-shadow: none; }
+.md-search-result__meta { background-color: var(--bk-bg-soft); color: var(--bk-fg-faint); }
+.md-search-result__link:hover { background-color: var(--bk-accent-soft); }
+.md-search-result__article { border-bottom: 1px solid var(--bk-line); }
+.md-search-result mark { background: var(--bk-accent-soft); color: var(--bk-accent); }
+.md-search__overlay { background-color: var(--bk-bg); }
+
+/* --- 页脚：纸 + 一条线 --------------------------------------------------- */
+.md-footer {
+  background-color: var(--bk-bg-soft);
+  color: var(--bk-fg-soft);
+  border-top: 1px solid var(--bk-line-strong);
+}
+.md-footer-meta { background-color: transparent; }
+.md-footer__inner { padding: 0.7rem 0; }
+.md-footer__link { color: var(--bk-fg-soft); }
+.md-footer__link:hover { opacity: 1; color: var(--bk-accent); }
+.md-footer__title { font-family: var(--bk-font-serif); font-size: 16px; }
+.md-footer__direction {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.16em;
+  color: var(--bk-fg-faint);
+}
+.md-typeset .md-copyright {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.04em;
+  color: var(--bk-fg-faint);
+}
+.md-copyright__highlight { color: var(--bk-fg-soft); }
+
+/* ===========================================================================
+   字号阶梯 · 标题衬线 / 正文无衬线
+   ========================================================================= */
+.md-typeset {
+  font-size: var(--bk-fs-body);
+  line-height: var(--bk-lh-body);
+  color: var(--bk-fg);
+}
+.md-typeset p { margin: var(--bk-gap-para) 0; }
+
+/* 所有标题走衬线（封面书名 / 章名由各自的类接管） */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4 {
+  font-family: var(--bk-font-serif);
+  font-weight: var(--bk-w-head);
+  color: var(--bk-fg);
+}
+
+/* 节标题（页面 H1）：31px / 下留白 26px */
+.md-typeset h1 {
+  font-size: var(--bk-fs-h1);
+  line-height: 1.42;
+  letter-spacing: 0.01em;
+  margin: 0 0 26px;
+}
+
+/* 小节 h2：24px / 上留白 54px，其上方一条 1px 线 / 下留白 20px */
+.md-typeset h2 {
+  font-size: var(--bk-fs-h2);
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  margin: var(--bk-gap-h2-top) 0 var(--bk-gap-h2-bottom);
+  border-top: 1px solid var(--bk-line);
+  padding-top: 17px;
+}
+
+/* 小标题 h3：19.5px / 上 34px / 下 14px */
+.md-typeset h3 {
+  font-size: var(--bk-fs-h3);
+  line-height: 1.55;
+  margin: var(--bk-gap-h3-top) 0 var(--bk-gap-h3-bottom);
+}
+.md-typeset h4 { font-size: var(--bk-fs-h4); margin: 28px 0 10px; }
+.md-typeset h5,
+.md-typeset h6 {
+  font-family: var(--bk-font-sans);
+  font-size: var(--bk-fs-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bk-fg-soft);
+}
+
+/* 注释 / 题注 14px；迷你标签 12.5px + 0.08em 字距（账簿小字） */
+.md-typeset .bk-mini,
+.bk-mini { letter-spacing: 0.08em; }
+.md-typeset small { font-size: var(--bk-fs-small); }
+
+/* 正文里的强调：加粗落墨，斜体（em）由机制层做成着重号 */
+.md-typeset strong { font-weight: 600; color: var(--bk-fg); }
+
+/* ===========================================================================
+   正文元素 · 线、纸、凭据
+   ========================================================================= */
+
+/* 分隔线：双细线（账簿的「结算线」） */
+.md-typeset hr {
+  border: 0;
+  border-top: 3px double var(--bk-line-strong);
+  margin: 46px 0;
+}
+
+/* 列表：编号用等宽，账目感 */
+.md-typeset ul li::marker { color: var(--bk-line-strong); }
+.md-typeset ol > li::marker {
+  font-family: var(--bk-font-mono);
+  font-size: 0.86em;
+  color: var(--bk-fg-faint);
+}
+
+/* 引用块：左侧 accent 竖线 + 无底色 + 略小字号 */
+.md-typeset blockquote {
+  margin: 24px 0;
+  padding: 0 0 0 20px;
+  border-left: 2px solid var(--bk-accent);
+  background: transparent;
+  color: var(--bk-fg-soft);
+  font-size: 16.5px;
+  line-height: 1.85;
+}
+.md-typeset blockquote strong { color: var(--bk-fg); }
+.md-typeset blockquote code { background: transparent; }
+
+/* 代码：米色底 + 细框（保持纸感，不做深色面板） */
+.md-typeset code {
+  background: var(--bk-bg-code);
+  border: 0;
+  border-radius: 2px;
+  padding: 0.1em 0.32em;
+  color: var(--bk-fg);
+}
+.md-typeset .highlight,
+.md-typeset pre {
+  background: var(--bk-bg-code);
+  border: 1px solid var(--bk-line);
+  border-radius: 3px;
+  box-shadow: none;
+}
+.md-typeset pre > code { background: none; border: 0; font-size: var(--bk-fs-code); line-height: 1.7; }
+.md-typeset .md-clipboard { color: var(--bk-fg-faint); }
+.md-typeset .md-clipboard:hover { color: var(--bk-accent); }
+
+/* 表格：账簿格线 —— 只有横线；表头上下双线；数字等宽 */
+.md-typeset table:not([class]) {
+  font-size: 15px;
+  border: 0;
+  border-top: 3px double var(--bk-line-strong);
+  border-bottom: 3px double var(--bk-line-strong);
+  border-collapse: collapse;
+  margin: 28px 0;
+  box-shadow: none;
+  display: table;
+  width: 100%;
+}
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--bk-line);
+  background: transparent;
+  vertical-align: top;
+  text-align: left;
+}
+.md-typeset table:not([class]) th {
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-small);
+  font-weight: 600;
+  color: var(--bk-fg);
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--bk-line-strong);
+  white-space: nowrap;
+}
+.md-typeset table:not([class]) tr:last-child td { border-bottom: 0; }
+.md-typeset table:not([class]) td {
+  font-variant-numeric: tabular-nums;
+  line-height: 1.7;
+}
+/* Markdown 的 |---:| 对齐（Python-Markdown 会落成 inline style）——账簿里
+   数字列一律右对齐，等宽数字；管道给表格加对齐后这条就会生效 */
+.md-typeset table:not([class]) :is(th, td)[style*="text-align: right"],
+.md-typeset table:not([class]) :is(th, td)[style*="text-align:right"] { text-align: right; }
+
+/* 提示框：无底色，细框 + 左侧 accent 线 */
+.md-typeset .admonition,
+.md-typeset details {
+  border: 1px solid var(--bk-line);
+  border-left: 2px solid var(--bk-accent);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 16.5px;
+}
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--bk-fg);
+  background: transparent;
+  border: 0;
+}
+.md-typeset .admonition-title::before,
+.md-typeset summary::before { background-color: var(--bk-accent); }
+.md-typeset details[open] > summary { border-bottom: 1px solid var(--bk-line); }
+
+/* 脚注 */
+.md-typeset .footnote { font-size: var(--bk-fs-small); color: var(--bk-fg-soft); }
+.md-typeset .footnote-ref { font-size: 0.72em; }
+.md-typeset .footnote-backref { color: var(--bk-accent); }
+
+/* 图片与题注 */
+.md-typeset img { border-radius: 2px; }
+.bk-figure figcaption,
+.md-typeset .bk-caption {
+  font-size: var(--bk-fs-small);
+  color: var(--bk-fg-faint);
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+}
+
+/* 锚点符号：hover 才出现，落在 accent 上 */
+.md-typeset .headerlink { color: var(--bk-fg-faint); }
+.md-typeset .headerlink:hover { color: var(--bk-accent); }
+
+/* ===========================================================================
+   语义件 ①  状态点：账上只有「已落墨 / 未落墨」两种笔迹
+   ========================================================================= */
+.md-typeset .bk-state-dot { border-radius: 50%; }
+.md-typeset .bk-state-dot--done { background: var(--bk-accent); }
+.md-typeset .bk-state-dot--writing {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--bk-fg-faint);
+}
+.md-typeset .bk-state-dot--planned {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--bk-line-strong);
+}
+.md-typeset .bk-state-dot--growing {
+  background: color-mix(in srgb, var(--bk-accent) 50%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--bk-accent);
+}
+
+.md-status { border-radius: 50%; }
+.md-status--done { background: var(--bk-accent); opacity: 1; }
+.md-status--writing {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--bk-line-strong);
+  opacity: 1;
+}
+.md-status--planned { background: transparent; box-shadow: inset 0 0 0 1.5px var(--bk-line); }
+.md-status--growing {
+  background: color-mix(in srgb, var(--bk-accent) 50%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--bk-accent);
+}
+
+/* ===========================================================================
+   语义件 ②  空页 —— 「此节尚未落笔」的账页留白
+   ----------------------------------------------------------------------------
+   全书的诚实底色：33 个空页不许寒酸，也不许装作有内容。做法是把它做成一张
+   账页上还没落墨的横格：上下双细线、衬线小字、明确数字，底下压一枚极淡的
+   方向标记（不是装饰，是「这一格属于这本书」的印记）。
+   ========================================================================= */
+.md-typeset .bk-status-block {
+  position: relative;
+  margin: 44px 0 8px;
+  padding: 30px 0 28px;
+  max-width: 34em;
+  border-top: 3px double var(--bk-line-strong);
+  border-bottom: 3px double var(--bk-line-strong);
+  font-family: var(--bk-font-serif);
+  font-size: 14.5px;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  color: var(--bk-fg-soft);
+}
+/* 「待刊」小签：压在双细线上，像账簿上贴的条 */
+.md-typeset .bk-status-block::before {
+  content: "待刊";
+  position: absolute;
+  top: -0.72em;
+  left: 0;
+  padding: 0 10px 0 0;
+  background: var(--bk-bg);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  color: var(--bk-accent);
+  line-height: 1.4;
+}
+.md-typeset .bk-status-block p { margin: 0.55em 0; }
+.md-typeset .bk-status-block strong {
+  font-weight: 600;
+  color: var(--bk-fg);
+  letter-spacing: 0.04em;
+}
+.md-typeset .bk-status-block > :first-child { margin-top: 0; }
+.md-typeset .bk-status-block > :last-child { margin-bottom: 0; }
+/* 状态点在这张留白上是一枚空心小印 */
+.md-typeset .bk-status-block .bk-state-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 0;
+  margin-right: 10px;
+  box-shadow: inset 0 0 0 1px var(--bk-accent);
+}
+/* 出口链接：小号 + 细下划线，不做按钮 */
+.md-typeset .bk-status-block a {
+  color: var(--bk-fg-soft);
+  border-bottom: 1px solid var(--bk-line-strong);
+}
+.md-typeset .bk-status-block a:hover {
+  color: var(--bk-accent);
+  border-bottom-color: var(--bk-accent);
+  background: transparent;
+}
+/* 留白底部的印记：这一格仍然是这本书的一页 */
+.md-content__inner:has(> .bk-status-block)::after {
+  content: "";
+  display: block;
+  clear: both;
+  width: 116px;
+  height: 116px;
+  margin: 76px auto 44px;
+  background-image: url("mark.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.14;
+}
+[data-md-color-scheme="slate"] .md-content__inner:has(> .bk-status-block)::after {
+  filter: invert(1);
+  opacity: 0.11;
+}
+
+/* ===========================================================================
+   语义件 ③  证据 —— 账簿里的「凭据」
+   ----------------------------------------------------------------------------
+   无底色；靠上下双细线 + 一枚小印记（据）+ 小号字立住。表格走账簿格线。
+   ========================================================================= */
+.md-typeset .bk-evidence,
+.bk-evidence {
+  position: relative;
+  margin: 30px 0;
+  padding: 20px 0 18px;
+  border-top: 3px double var(--bk-line-strong);
+  border-bottom: 1px solid var(--bk-line-strong);
+  background: transparent;
+  font-size: var(--bk-fs-small);
+  line-height: 1.85;
+  color: var(--bk-fg-soft);
+}
+.md-typeset .bk-evidence__label,
+.bk-evidence .bk-evidence__label {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 1px 6px;
+  border: 1px solid var(--bk-accent);
+  color: var(--bk-accent);
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+.bk-evidence table:not([class]) { font-size: 13.5px; margin: 14px 0; }
+.bk-evidence table:not([class]) th { font-size: var(--bk-fs-mini); letter-spacing: 0.06em; }
+.bk-evidence :is(ul, ol) { margin: 10px 0; padding-left: 1.3em; }
+.bk-evidence li { margin: 0.3em 0; }
+.bk-evidence p { margin: 0.55em 0; }
+.bk-evidence > :first-child { margin-top: 0; }
+.bk-evidence > :last-child { margin-bottom: 0; }
+
+/* ===========================================================================
+   语义件 ④  章导语页 —— 开章感
+   ========================================================================= */
+.md-content__inner:has(.bk-chapter-head) { max-width: var(--bk-measure-wide); }
+.md-content__inner:has(.bk-chapter-head) :is(.bk-chapter-head, .bk-sections) { max-width: none; }
+
+.bk-chapter-head {
+  margin: 0 0 26px;
+  padding-bottom: 28px;
+  border-bottom: 3px double var(--bk-line-strong); /* 双细线：章名区 | 节清单 */
+}
+.md-typeset .bk-chapter-num {
+  display: block;
+  margin-bottom: 16px;
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--bk-accent);
+}
+/* 章号前的印章式小印记：8px 空心方框 */
+.md-typeset .bk-chapter-num::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 12px;
+  border: 1px solid var(--bk-accent);
+  vertical-align: 1px;
+}
+.md-typeset .bk-chapter-name {
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-chapter);
+  line-height: 1.22;
+  font-weight: var(--bk-w-head);
+  letter-spacing: 0.01em;
+  margin: 0 0 14px;
+}
+.md-typeset .bk-chapter-theme {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--bk-font-serif);
+  font-size: 0.44em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--bk-fg-soft);
+}
+.md-typeset .bk-chapter-meta {
+  font-size: var(--bk-fs-small);
+  letter-spacing: 0.06em;
+  color: var(--bk-fg-faint);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+/* 进度：一根头发丝 */
+.bk-progress { gap: 12px; }
+.md-typeset .bk-progress__bar {
+  height: 2px;
+  border-radius: 0;
+  background: var(--bk-line-strong);
+}
+.bk-progress__fill { background: var(--bk-accent); }
+
+/* 章导语页里的 h2（「本章目录」「本章收尾栏目」）降级成账簿的栏头。
+   注意 .md-content__inner 自己就是 .md-typeset，不能再嵌一层 .md-typeset，
+   否则选择器一条都命中不了（第一轮就踩了这个坑）。 */
+.md-content__inner:has(.bk-chapter-head) h2 {
+  font-family: var(--bk-font-sans);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: var(--bk-fg-faint);
+  border-top: 1px solid var(--bk-line);
+  padding-top: 16px;
+  margin: 44px 0 0;
+}
+/* 紧跟章名区进度条的第一个栏头不再压一条线（上面已经是双细线了） */
+.md-content__inner:has(.bk-chapter-head) .bk-progress + h2 {
+  border-top: 0;
+  padding-top: 2px;
+  margin-top: 24px;
+}
+
+/* 节清单：账页 —— mono 节号 + 细横线 + 右侧状态 */
+.bk-sections { margin: 8px 0 0; font-size: var(--bk-fs-body); }
+.md-typeset .bk-sections a { border-bottom: 0; }
+.md-typeset .bk-section-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--bk-line);
+  transition: background-color 0.12s;
+}
+.md-typeset .bk-section-row:first-child { border-top: 1px solid var(--bk-line-strong); }
+.md-typeset .bk-section-row:hover { background: var(--bk-accent-soft); }
+.md-typeset .bk-section-row__num {
+  font-family: var(--bk-font-mono);
+  font-size: var(--bk-fs-small);
+  letter-spacing: 0.06em;
+  color: var(--bk-fg-faint);
+  min-width: 2.1em;
+  font-variant-numeric: tabular-nums;
+}
+.bk-section-row__title { flex: 1; }
+.md-typeset .bk-section-row__title a { color: var(--bk-fg); }
+.md-typeset .bk-section-row__title a:hover { color: var(--bk-accent); background: transparent; }
+.md-typeset .bk-section-row--writing .bk-section-row__title a { color: var(--bk-fg-soft); }
+.md-typeset .bk-section-row__state {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.1em;
+  color: var(--bk-fg-faint);
+  white-space: nowrap;
+}
+.md-typeset .bk-section-row__state .bk-state-dot { width: 5px; height: 5px; margin-right: 8px; }
+
+/* 章末固定栏目：账页栏目行 */
+.bk-chapter-end { margin-top: 10px; }
+.md-typeset .bk-chapter-end__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 0;
+  border-top: 1px solid var(--bk-line);
+}
+.md-typeset .bk-chapter-end__item:last-child { border-bottom: 1px solid var(--bk-line); }
+.md-typeset .bk-chapter-end__item strong {
+  font-family: var(--bk-font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--bk-fg);
+  letter-spacing: 0.02em;
+}
+
+/* ===========================================================================
+   侧栏 · 上篇/下篇 → 章 → 节，层次全用线
+   ========================================================================= */
+.md-sidebar--primary .md-nav { font-size: 13.5px; }
+/* 侧栏顶端那句书名是「抽屉（手机）」的标题，桌面端和页眉重复，而且长书名会
+   折成三行 —— 桌面收起（抽屉里照旧） */
+@media screen and (min-width: 60em) {
+  .md-sidebar--primary .md-nav--primary > .md-nav__title { display: none; }
+}
+.md-sidebar--primary .md-nav__title {
+  background: transparent;
+  color: var(--bk-fg-faint);
+  font-family: var(--bk-font-sans);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  box-shadow: none;
+}
+.md-sidebar--primary .md-nav__link {
+  color: var(--bk-fg-soft);
+  border-radius: 0;
+  margin-top: 0.5em;
+}
+.md-sidebar--primary .md-nav__link:hover { color: var(--bk-fg); }
+.md-sidebar--primary .md-nav__link--active,
+.md-sidebar--primary .md-nav__link--active:hover { color: var(--bk-accent); }
+.md-sidebar--primary .md-nav__icon { color: var(--bk-fg-faint); }
+
+/* 分卷（上篇 / 下篇）：上方一条线 + 小号字距，像账簿的分册 */
+.md-sidebar--primary .md-nav__item--section > .md-nav__link:first-child,
+.md-sidebar--primary .md-nav__item--section > label.md-nav__link {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bk-line-strong);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--bk-fg-faint);
+}
+/* 卷名（「上篇 · 零件：从一个 Token，到一个模型」）宁可折行，不要省略号 */
+.md-sidebar--primary .md-nav__item--section > .md-nav__link .md-ellipsis {
+  white-space: normal;
+  line-height: 1.6;
+}
+
+/* 章：章与章之间一条 1px 细线 */
+.md-sidebar--primary nav[data-md-level="1"] > .md-nav__list > .md-nav__item {
+  border-bottom: 1px solid var(--bk-line);
+}
+.md-sidebar--primary nav[data-md-level="1"] .md-nav__container { display: flex; align-items: center; }
+.md-sidebar--primary nav[data-md-level="1"] .md-nav__container > a.md-nav__link {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+  padding: 0.62em 0;
+  color: var(--bk-fg);
+}
+.md-sidebar--primary nav[data-md-level="1"] .md-nav__container > label.md-nav__link {
+  margin-top: 0;
+  padding: 0.62em 0 0.62em 0.3em;
+  color: var(--bk-fg-faint);
+}
+
+/* 节清单：缩进 + 左侧细线；当前章的这条线换成 accent */
+.md-sidebar--primary nav[data-md-level="2"] > .md-nav__list {
+  margin: 0.15em 0 0.85em 0.4em;
+  padding-left: 0.75em;
+  border-left: 1px solid var(--bk-line);
+}
+.md-sidebar--primary .md-nav__item--active > nav[data-md-level="2"] > .md-nav__list {
+  border-left-color: var(--bk-accent);
+}
+.md-sidebar--primary nav[data-md-level="2"] .md-nav__link {
+  font-size: 13px;
+  color: var(--bk-fg-soft);
+  margin-top: 0.44em;
+}
+.md-sidebar--primary nav[data-md-level="2"] .md-nav__link--active { color: var(--bk-accent); }
+
+/* 右栏本页目录 */
+.md-sidebar--secondary .md-nav__title {
+  background: transparent;
+  color: var(--bk-fg-faint);
+  font-size: var(--bk-fs-mini);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  box-shadow: none;
+}
+.md-sidebar--secondary .md-nav__link { font-size: 13px; color: var(--bk-fg-faint); }
+.md-sidebar--secondary .md-nav__link:hover { color: var(--bk-fg); }
+.md-sidebar--secondary .md-nav__link--active { color: var(--bk-accent); }
+
+/* ===========================================================================
+   封面 · 扉页 / 书名页
+   ========================================================================= */
+.md-content__inner:has(.bk-cover) { max-width: var(--bk-measure-wide); }
+.md-content__inner:has(.bk-cover) .bk-cover { max-width: none; }
+.bk-cover { margin: -10px 0 0; }
+
+.bk-cover__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+}
+.md-typeset .bk-cover__imprint {
+  font-family: var(--bk-font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: var(--bk-fg);
+}
+/* 品牌印记：一枚空心小印 */
+.bk-seal {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 11px;
+  border: 1px solid var(--bk-accent);
+  vertical-align: 1px;
+}
+.md-typeset .bk-cover__kicker {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.2em;
+  color: var(--bk-fg-faint);
+  text-align: right;
+}
+.md-typeset .bk-cover__rule {
+  border: 0;
+  border-top: 3px double var(--bk-line-strong);
+  margin: 18px 0 0;
+}
+
+/* 书名页主体 */
+.md-typeset .bk-cover__mark {
+  display: block;
+  width: 38px;
+  height: 38px;
+  margin: 54px 0 0;
+  background-image: url("mark.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+[data-md-color-scheme="slate"] .md-typeset .bk-cover__mark { filter: invert(1) opacity(0.82); }
+.md-typeset .bk-cover__title {
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-cover);
+  line-height: 1.2;
+  font-weight: var(--bk-w-head);
+  letter-spacing: 0.01em;
+  margin: 26px 0 0;
+}
+.md-typeset .bk-cover__sub {
+  font-family: var(--bk-font-serif);
+  font-size: 23px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--bk-fg-soft);
+  margin: 18px 0 0;
+}
+.md-typeset .bk-cover__lede {
+  font-size: var(--bk-fs-body);
+  line-height: 1.9;
+  color: var(--bk-fg-soft);
+  margin: 30px 0 0;
+  max-width: 33em;
+}
+.bk-cover__actions { display: flex; flex-wrap: wrap; gap: 22px; margin: 38px 0 0; align-items: center; }
+.md-typeset .bk-cover__cta {
+  display: inline-block;
+  padding: 11px 22px;
+  border: 1px solid var(--bk-accent);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--bk-accent);
+  font-size: var(--bk-fs-small);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+}
+.md-typeset .bk-cover__cta::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 11px;
+  background: var(--bk-accent);
+  vertical-align: 1px;
+}
+.md-typeset .bk-cover__cta:hover { background: var(--bk-accent-soft); color: var(--bk-accent); }
+.md-typeset .bk-cover__link {
+  font-size: var(--bk-fs-small);
+  letter-spacing: 0.06em;
+  color: var(--bk-fg-soft);
+  border-bottom: 1px solid var(--bk-line-strong);
+  padding-bottom: 2px;
+}
+.md-typeset .bk-cover__link:hover {
+  color: var(--bk-accent);
+  border-bottom-color: var(--bk-accent);
+  background: transparent;
+}
+.md-typeset .bk-cover__link--muted {
+  color: var(--bk-fg-faint);
+  border-bottom-style: dotted;
+  cursor: default;
+}
+.md-typeset .bk-cover__link--muted:hover { color: var(--bk-fg-faint); border-bottom-color: var(--bk-line-strong); }
+
+/* 全书账目：大数字 + 小标签 */
+.bk-cover__ledger { margin: 46px 0 0; }
+.md-typeset .bk-cover__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 30px;
+  margin: 0 0 18px;
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.14em;
+  color: var(--bk-fg-faint);
+}
+.md-typeset .bk-cover__stats b {
+  font-family: var(--bk-font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--bk-fg);
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.md-typeset .bk-cover__state { margin-left: auto; color: var(--bk-fg-faint); }
+
+/* 分卷章网格：目录页的引线 */
+.bk-toc { margin: 6px 0 0; }
+.md-typeset .bk-toc__part {
+  font-family: var(--bk-font-serif);
+  font-size: var(--bk-fs-small);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--bk-fg);
+  margin: 34px 0 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bk-line-strong);
+}
+.md-typeset .bk-toc__chapter {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid var(--bk-line);
+  color: var(--bk-fg);
+  text-decoration: none;
+  transition: color 0.12s;
+}
+.md-typeset .bk-toc__chapter:hover { color: var(--bk-accent); background: transparent; }
+.md-typeset .bk-toc__chapter-num {
+  flex: none;
+  min-width: 3.6em;
+  font-family: var(--bk-font-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--bk-fg-faint);
+}
+.md-typeset .bk-toc__chapter-name { flex: none; font-size: 16.5px; }
+.md-typeset .bk-toc__leader {
+  flex: 1 1 auto;
+  min-width: 20px;
+  margin: 0 12px;
+  border-bottom: 1px dotted var(--bk-line-strong);
+  transform: translateY(-4px);
+}
+.md-typeset .bk-toc__chapter-meta {
+  flex: none;
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.08em;
+  color: var(--bk-fg-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.md-typeset .bk-toc__chapter-meta .bk-state-dot {
+  width: 5px;
+  height: 5px;
+  margin-right: 9px;
+  vertical-align: 1px;
+}
+.md-typeset .bk-toc__chapter--planned .bk-toc__chapter-name { color: var(--bk-fg-soft); }
+.md-typeset .bk-toc__chapter:hover .bk-toc__chapter-name,
+.md-typeset .bk-toc__chapter:hover .bk-toc__chapter-meta { color: var(--bk-accent); }
+
+/* 页脚：同一家的另一本 + 授权 */
+.bk-cover__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 34px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--bk-line-strong);
+}
+.md-typeset .bk-cover__sibling {
+  font-family: var(--bk-font-serif);
+  font-size: 15px;
+  color: var(--bk-fg);
+  border-bottom: 0;
+}
+.md-typeset .bk-cover__sibling:hover { color: var(--bk-accent); background: transparent; }
+.md-typeset .bk-cover__sibling .bk-mini { margin-right: 10px; }
+
+/* ===========================================================================
+   杂项
+   ========================================================================= */
+/* Material 把 .md-main__inner 写死 height:100%，于是「导航比正文长」的时候
+   （空页就是这种页），侧栏会越出主体、压到页脚上。放开高度 + 让侧栏在视口内
+   自己滚，长目录和短页面都不打架。 */
+.md-main__inner { height: auto; }
+/* Material 在桌面端给 .md-sidebar 写死 height:0（为了让 sticky 有活动空间），
+   于是侧栏整块不占高度、内容直接漫出主体压到页脚上 —— 目录越长、页面越短
+   （空页就是），压得越狠。这里把侧栏还原成「最多一屏高」的盒子：短页面时它
+   参与撑高主体，长页面时它照旧 sticky + 自己滚。 */
+@media screen and (min-width: 76.25em) {
+  .md-sidebar {
+    height: auto;
+    max-height: calc(100vh - 7.5rem);
+    overflow: hidden auto;
+    scrollbar-width: thin;
+  }
+  .md-sidebar__scrollwrap { max-height: none; overflow: visible; }
+}
+
+:is(a, button, label, input):focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 2px; }
+
+@media print {
+  .md-typeset .bk-status-block { border-color: #999; }
+  .md-content__inner:has(> .bk-status-block)::after { display: none; }
+}
+
+/* ===========================================================================
+   出处账 —— 「数据与出处」那一节（全书「言必有据」的落点）
+   ---------------------------------------------------------------------------
+   问题：一手记录 / 版本记录 / 现场留档的清单，如果跟普通正文长得一样，
+   「深度」就看不见了。它是这本书的账，要按账来排：双细线框 + 等宽编号 + 小字。
+   选择器：用标题 slug（pymdownx 的 slugify 对中文原样保留）+「后面不再有 h2」的约束，
+   所以只命中**最后一节**的清单；将来这段后面再加小节，它会自动收手，不会误伤别的列表。
+   （更彻底的做法是生成侧给这段内容打一个标记类；这里先用 CSS 拿到同样的效果，
+   两条路都能走，见交付说明里的「待办」。）
+   =========================================================================== */
+.md-typeset h2[id="数据与出处"]::before,
+.md-typeset h2[id="出处"]::before,
+.md-typeset h2[id="数据来源"]::before,
+.md-typeset h2[id="来源"]::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  vertical-align: 0.28em;
+  background: var(--bk-accent);
+}
+
+.md-typeset h2[id="数据与出处"] ~ ul:not(:has(~ h2)),
+.md-typeset h2[id="出处"] ~ ul:not(:has(~ h2)),
+.md-typeset h2[id="数据来源"] ~ ul:not(:has(~ h2)),
+.md-typeset h2[id="来源"] ~ ul:not(:has(~ h2)) {
+  counter-reset: bk-src;
+  list-style: none;
+  margin: 18px 0 26px;
+  padding: 4px 0;
+  border-top: 3px double var(--bk-line-strong);
+  border-bottom: 3px double var(--bk-line-strong);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.md-typeset h2[id="数据与出处"] ~ ul:not(:has(~ h2)) > li,
+.md-typeset h2[id="出处"] ~ ul:not(:has(~ h2)) > li,
+.md-typeset h2[id="数据来源"] ~ ul:not(:has(~ h2)) > li,
+.md-typeset h2[id="来源"] ~ ul:not(:has(~ h2)) > li {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 2px;
+  border-top: 1px solid var(--bk-line);
+  color: var(--bk-fg-soft);
+}
+.md-typeset h2[id="数据与出处"] ~ ul:not(:has(~ h2)) > li:first-child,
+.md-typeset h2[id="出处"] ~ ul:not(:has(~ h2)) > li:first-child,
+.md-typeset h2[id="数据来源"] ~ ul:not(:has(~ h2)) > li:first-child,
+.md-typeset h2[id="来源"] ~ ul:not(:has(~ h2)) > li:first-child {
+  border-top: 0;
+}
+.md-typeset h2[id="数据与出处"] ~ ul:not(:has(~ h2)) > li::before,
+.md-typeset h2[id="出处"] ~ ul:not(:has(~ h2)) > li::before,
+.md-typeset h2[id="数据来源"] ~ ul:not(:has(~ h2)) > li::before,
+.md-typeset h2[id="来源"] ~ ul:not(:has(~ h2)) > li::before {
+  counter-increment: bk-src;
+  content: counter(bk-src, decimal-leading-zero);
+  flex: 0 0 auto;
+  font-family: var(--bk-font-mono);
+  font-size: 12px;
+  color: var(--bk-fg-faint);
+  letter-spacing: 0.02em;
+  padding-top: 2px;
+}

@@ -1,0 +1,687 @@
+/* ============================================================================
+   mechanics.css —— 书站设计系统的「机制层」（零 webfont，零依赖）
+   ----------------------------------------------------------------------------
+   这一层只做三件事，不做视觉身份：
+     ① 中文字体栈 + 中文排版规则（字距/标点挤压/中英混排/禁伪斜体）
+     ② 版心与字号阶梯骨架（方向层按 token 微调）
+     ③ 语义类：.bk-* （章节页 / 状态块 / 证据块 / 章末栏目 / 封面）
+   方向的视觉身份全部写在各自的 theme.css 里，只覆写 :root token + 少量结构。
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   1) Token 默认值（方向层覆写）
+   --------------------------------------------------------------------------- */
+:root {
+  /* 字体栈：全部是系统字体，首屏 webfont 成本 = 0
+     - 正文/标题无衬线：macOS PingFang SC → HarmonyOS → 思源黑 → Windows 雅黑
+     - 标题衬线（方向 B 用）：macOS Songti SC → 思源宋 → Windows SimSun
+     - 等宽：JetBrains Mono（若本地有）→ SF Mono → Cascadia → Menlo/Consolas
+       中文回退到思源等宽/黑体，避免代码块里的中文跳成宋体 */
+  --bk-font-sans: "PingFang SC", "HarmonyOS Sans SC", "Source Han Sans SC",
+    "Noto Sans CJK SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bk-font-serif: "Songti SC", "STSong", "Source Han Serif SC",
+    "Noto Serif CJK SC", "SimSun", Georgia, "Times New Roman", serif;
+  --bk-font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace,
+    "Cascadia Mono", Menlo, Consolas, "Source Han Mono SC",
+    "Noto Sans Mono CJK SC", monospace;
+
+  /* 版心：中文长文 40 字/行上下（17px × 41 ≈ 704px）。
+     Material 默认内容列 61rem(=1220px，约 72 字/行) 对中文太宽，这里收窄。 */
+  --bk-measure: 704px;
+  --bk-page-max: 1560px;
+
+  /* 字号阶梯（px，避开 Material 的 html{font-size:125%} 换算陷阱） */
+  --bk-fs-body: 17px;
+  --bk-fs-h1: 30px;      /* 节标题（页面 H1） */
+  --bk-fs-h2: 23px;      /* 小节 */
+  --bk-fs-h3: 19px;
+  --bk-fs-h4: 17px;
+  --bk-fs-small: 14px;
+  --bk-fs-mini: 12.5px;
+  --bk-fs-code: 15px;
+  --bk-fs-chapter: 40px; /* 章名（章导语页） */
+  --bk-fs-cover: 54px;   /* 书名（封面） */
+
+  /* 行高与间距 */
+  --bk-lh-body: 1.85;
+  --bk-lh-tight: 1.45;
+  --bk-gap-para: 1.05em;
+  --bk-gap-h2-top: 52px;
+  --bk-gap-h2-bottom: 20px;
+  --bk-gap-h3-top: 36px;
+  --bk-gap-h3-bottom: 14px;
+
+  /* 字重（中文屏显：正文 400，标题 600-800） */
+  --bk-w-body: 400;
+  --bk-w-strong: 650;
+  --bk-w-head: 700;
+
+  /* 结构性尺寸 */
+  --bk-radius: 6px;
+  --bk-radius-lg: 10px;
+  --bk-hairline: 1px;
+
+  /* 方向层必须覆写的颜色（这里给中性兜底，避免漏填就崩） */
+  --bk-bg: #ffffff;
+  --bk-bg-soft: #f7f8f9;
+  --bk-bg-code: #f2f4f6;
+  --bk-fg: #1b2027;
+  --bk-fg-soft: #5a6472;
+  --bk-fg-faint: #8a939f;
+  --bk-line: #e2e6ea;
+  --bk-line-strong: #c9d0d8;
+  --bk-brand: #2f4a6d;
+  --bk-accent: #2f6fa8;
+  --bk-accent-soft: rgba(47, 111, 168, 0.1);
+  --bk-status-writing: #b9a06a;
+  --bk-status-done: #4b8b6b;
+}
+
+/* ---------------------------------------------------------------------------
+   2) 中文排版：正文
+   --------------------------------------------------------------------------- */
+html { -webkit-text-size-adjust: 100%; }
+
+body,
+.md-typeset {
+  font-family: var(--bk-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.md-typeset {
+  font-size: var(--bk-fs-body);
+  line-height: var(--bk-lh-body);
+  color: var(--bk-fg);
+
+  /* 标点挤压：行首/行尾的全角标点吃掉多余空白（Chrome 131+/Safari 18+，
+     不支持也完全无害 —— 渐进增强，不需要任何 JS） */
+  text-spacing-trim: space-first;
+  /* 中英/中数混排自动插入 1/4 em 空隙（同上，渐进增强） */
+  text-autospace: normal;
+
+  /* 中文不拉伸字距；只在标点后允许浏览器断行优化 */
+  letter-spacing: 0;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 0.06em;
+  overflow-wrap: break-word;
+}
+
+/* 首行缩进：判断为「不用」。理由写在交付说明里：
+   ① 中文书缩进是为区分段落+省纸，网页已有段距（1.05em）承担这件事；
+   ② 本书大量出现引用块/代码块/表格/图，缩进会让这些块与正文错位；
+   ③ 屏幕阅读时代缩进反而降低扫描定位速度。 */
+.md-typeset p { margin: var(--bk-gap-para) 0; text-indent: 0; }
+
+/* 中文不用伪斜体（italic 对汉字是计算机强行倾斜，字形丑且降低可读）。
+   强调改用「着重号」——汉字本身的正统强调法；方向层可改成加粗/变色。 */
+.md-typeset em,
+.md-typeset i {
+  font-style: normal;
+  text-emphasis: filled dot var(--bk-accent);
+  text-emphasis-position: under right;
+  -webkit-text-emphasis: filled dot var(--bk-accent);
+}
+.md-typeset em em { text-emphasis: none; }
+
+.md-typeset strong { font-weight: var(--bk-w-strong); color: var(--bk-fg); }
+
+/* 链接：正文里靠颜色+细下划线，不用粗体 */
+.md-typeset a {
+  color: var(--bk-accent);
+  text-decoration: none;
+  border-bottom: var(--bk-hairline) solid var(--bk-accent-soft);
+  transition: border-color 0.12s, background-color 0.12s;
+}
+.md-typeset a:hover {
+  border-bottom-color: var(--bk-accent);
+  background-color: var(--bk-accent-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   3) 字号阶梯：标题（章 / 节 / 小节 / 小标题）
+   --------------------------------------------------------------------------- */
+.md-typeset h1 {
+  font-size: var(--bk-fs-h1);
+  line-height: 1.35;
+  font-weight: var(--bk-w-head);
+  color: var(--bk-fg);
+  margin: 0 0 26px;
+  letter-spacing: 0;
+}
+.md-typeset h2 {
+  font-size: var(--bk-fs-h2);
+  line-height: 1.5;
+  font-weight: var(--bk-w-head);
+  margin: var(--bk-gap-h2-top) 0 var(--bk-gap-h2-bottom);
+  padding-top: 0;
+}
+.md-typeset h3 {
+  font-size: var(--bk-fs-h3);
+  line-height: 1.5;
+  font-weight: var(--bk-w-head);
+  margin: var(--bk-gap-h3-top) 0 var(--bk-gap-h3-bottom);
+}
+.md-typeset h4 {
+  font-size: var(--bk-fs-h4);
+  font-weight: var(--bk-w-head);
+  margin: 28px 0 10px;
+}
+.md-typeset h5,
+.md-typeset h6 {
+  font-size: var(--bk-fs-small);
+  font-weight: var(--bk-w-strong);
+  margin: 22px 0 8px;
+  color: var(--bk-fg-soft);
+}
+
+/* 锚点符号（permalink）：默认太抢眼，收到 hover 才出现 */
+.md-typeset .headerlink {
+  color: var(--bk-fg-faint);
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  border-bottom: 0;
+  margin-left: 0.35em;
+  font-size: 0.72em;
+}
+.md-typeset :is(h1, h2, h3, h4, h5, h6):hover .headerlink { opacity: 1; }
+.md-typeset .headerlink:hover { background: none; color: var(--bk-accent); }
+
+/* ---------------------------------------------------------------------------
+   4) 列表 / 分隔线 / 图片
+   --------------------------------------------------------------------------- */
+.md-typeset ul,
+.md-typeset ol { margin: var(--bk-gap-para) 0; padding-left: 1.5em; }
+.md-typeset li { margin: 0.34em 0; }
+.md-typeset li > ul,
+.md-typeset li > ol { margin: 0.34em 0; }
+.md-typeset ul li::marker { color: var(--bk-fg-faint); }
+
+.md-typeset hr {
+  border: 0;
+  border-top: var(--bk-hairline) solid var(--bk-line);
+  margin: 40px 0;
+}
+
+.md-typeset img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--bk-radius);
+}
+
+/* ---------------------------------------------------------------------------
+   5) 代码：行内 / 块
+   --------------------------------------------------------------------------- */
+.md-typeset code {
+  font-family: var(--bk-font-mono);
+  font-size: 0.9em;
+  background: var(--bk-bg-code);
+  color: var(--bk-fg);
+  border-radius: 4px;
+  padding: 0.12em 0.34em;
+  box-shadow: none;
+  word-break: break-word;
+}
+.md-typeset pre > code {
+  background: none;
+  padding: 0;
+  font-size: var(--bk-fs-code);
+  line-height: 1.68;
+  border-radius: 0;
+}
+.md-typeset .highlight,
+.md-typeset pre {
+  border-radius: var(--bk-radius-lg);
+}
+.md-typeset pre { margin: var(--bk-gap-para) 0; }
+.md-typeset .highlight { margin: var(--bk-gap-para) 0; }
+/* ASCII 图（本书大量使用等宽框图）不能被折行毁掉 */
+.md-typeset pre > code { display: block; overflow-x: auto; }
+.md-typeset .md-clipboard { color: var(--bk-fg-faint); }
+
+/* ---------------------------------------------------------------------------
+   6) 引用块 / 表格
+   --------------------------------------------------------------------------- */
+.md-typeset blockquote {
+  margin: var(--bk-gap-para) 0;
+  padding: 2px 0 2px 16px;
+  border-left: 3px solid var(--bk-accent);
+  background: transparent;
+  color: var(--bk-fg-soft);
+}
+.md-typeset blockquote > p { margin: 0.5em 0; }
+.md-typeset blockquote > :first-child { margin-top: 0; }
+.md-typeset blockquote > :last-child { margin-bottom: 0; }
+
+.md-typeset table:not([class]) {
+  font-size: var(--bk-fs-code);
+  border: 0;
+  border-collapse: collapse;
+  margin: 26px 0;
+  box-shadow: none;
+  display: table;
+  width: 100%;
+}
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: var(--bk-hairline) solid var(--bk-line);
+  background: transparent;
+  vertical-align: top;
+}
+.md-typeset table:not([class]) th {
+  font-size: var(--bk-fs-small);
+  font-weight: var(--bk-w-strong);
+  color: var(--bk-fg-soft);
+  letter-spacing: 0.02em;
+  border-bottom: var(--bk-hairline) solid var(--bk-line-strong);
+  white-space: nowrap;
+}
+.md-typeset table:not([class]) td:first-child { white-space: nowrap; }
+/* 数字用等宽数字对齐，账本感/仪表感 */
+.md-typeset table:not([class]) td { font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------------------
+   7) 提示框（admonition）
+   --------------------------------------------------------------------------- */
+.md-typeset .admonition,
+.md-typeset details {
+  font-size: var(--bk-fs-body);
+  border: 0;
+  border-left: 3px solid var(--bk-accent);
+  border-radius: 0 var(--bk-radius) var(--bk-radius) 0;
+  background: var(--bk-accent-soft);
+  box-shadow: none;
+  margin: 24px 0;
+  padding: 0.2rem 0;
+}
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-size: var(--bk-fs-small);
+  font-weight: var(--bk-w-strong);
+  letter-spacing: 0.02em;
+  background: transparent;
+  border: 0;
+  padding: 8px 16px 4px 16px;
+}
+.md-typeset .admonition > :last-child { padding-bottom: 10px; }
+.md-typeset .admonition p { margin: 0.4em 0; }
+
+/* ---------------------------------------------------------------------------
+   8) 页脚注释
+   --------------------------------------------------------------------------- */
+.md-typeset .footnote { font-size: var(--bk-fs-small); color: var(--bk-fg-soft); }
+.md-typeset .footnote-ref { font-size: 0.75em; }
+
+/* ---------------------------------------------------------------------------
+   9) 语义类 .bk-*（结构件，方向层给样式）
+   --------------------------------------------------------------------------- */
+/* 顶部状态条（main.html 的 announce 块） */
+.md-typeset .bk-announce {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.01em;
+}
+.md-typeset .bk-announce__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: 1px;
+  background: currentColor;
+  opacity: 0.75;
+}
+.bk-announce a { color: inherit; text-decoration: underline; }
+
+/* 写作中状态块（脚本对占位稿注入） */
+.md-typeset .bk-status-block {
+  font-size: var(--bk-fs-small);
+  line-height: 1.75;
+  color: var(--bk-fg-soft);
+}
+
+/* 证据块：真实数据 / 一手记录 / 出处 */
+.bk-evidence { font-size: var(--bk-fs-small); line-height: 1.8; }
+.md-typeset .bk-evidence__label {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.14em;
+  font-weight: var(--bk-w-strong);
+}
+.bk-evidence table:not([class]) { margin: 12px 0; font-size: 13.5px; }
+.bk-evidence :is(ul, ol) { margin: 8px 0; }
+.bk-evidence p { margin: 0.5em 0; }
+
+/* 图表 + 题注（Markdown 图片后紧跟斜体段落即为题注约定） */
+.bk-figure { margin: 30px 0; }
+.bk-figure figcaption,
+.md-typeset .bk-caption {
+  font-size: var(--bk-fs-small);
+  color: var(--bk-fg-faint);
+  margin-top: 10px;
+  line-height: 1.7;
+}
+
+/* 章末固定栏目（谬误与陷阱 / 本章练习与复现 / 本章小结） */
+.bk-chapter-end { margin-top: 12px; }
+.md-typeset .bk-chapter-end__item {
+  display: block;
+  padding: 12px 0;
+  border-top: var(--bk-hairline) solid var(--bk-line);
+}
+
+/* 章导语页 */
+.bk-chapter-head { margin: 0 0 34px; }
+.md-typeset .bk-chapter-num {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.22em;
+  font-weight: var(--bk-w-strong);
+  color: var(--bk-accent);
+  display: block;
+  margin-bottom: 10px;
+}
+.md-typeset .bk-chapter-name {
+  font-size: var(--bk-fs-chapter);
+  line-height: 1.24;
+  font-weight: var(--bk-w-head);
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.md-typeset .bk-chapter-theme {
+  display: block;
+  font-size: 0.46em;
+  font-weight: 400;
+  color: var(--bk-fg-soft);
+  margin-top: 10px;
+  letter-spacing: 0;
+}
+.md-typeset .bk-chapter-meta {
+  font-size: var(--bk-fs-small);
+  color: var(--bk-fg-faint);
+  margin: 0;
+}
+
+/* 进度刻度（章 / 全书） */
+.bk-progress { display: flex; align-items: center; gap: 10px; font-size: var(--bk-fs-mini); }
+.md-typeset .bk-progress__bar {
+  flex: 1;
+  height: 3px;
+  background: var(--bk-line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bk-progress__fill { display: block; height: 100%; background: var(--bk-accent); }
+
+/* 节清单（章导语页）：mono 节号 + 标题 + 状态 */
+.bk-sections { margin: 26px 0 0; font-size: var(--bk-fs-body); }
+.bk-sections a { border-bottom: 0; }
+.md-typeset .bk-section-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: var(--bk-hairline) solid var(--bk-line);
+}
+.md-typeset .bk-section-row__num {
+  font-family: var(--bk-font-mono);
+  font-size: var(--bk-fs-small);
+  color: var(--bk-fg-faint);
+  min-width: 1.8em;
+  font-variant-numeric: tabular-nums;
+}
+.bk-section-row__title { flex: 1; }
+.md-typeset .bk-section-row__state {
+  font-size: var(--bk-fs-mini);
+  color: var(--bk-fg-faint);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.bk-section-row--writing .bk-section-row__title { color: var(--bk-fg-soft); }
+.md-typeset .bk-state-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: 1px;
+}
+.bk-state-dot--done { background: var(--bk-status-done); }
+.bk-state-dot--writing { background: var(--bk-status-writing); }
+
+/* 导航里的状态点（Material 的 nav_item.meta.status 机制） */
+.md-status {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: 8px;
+  vertical-align: 1px;
+  background: var(--bk-fg-faint);
+  opacity: 0.85;
+}
+.md-status::after { content: none; }
+.md-status--writing { background: var(--bk-status-writing); opacity: 0.5; }
+.md-status--done { background: var(--bk-status-done); }
+.md-status--growing { background: var(--bk-accent); }
+.md-status--planned { background: transparent; box-shadow: inset 0 0 0 1.5px var(--bk-line-strong); }
+.md-nav__link .md-status { margin-left: 6px; }
+
+/* 封面（home.html） */
+.bk-cover { margin: -26px 0 0; }
+.md-typeset .bk-cover__kicker {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.26em;
+  color: var(--bk-fg-faint);
+  text-transform: none;
+}
+.md-typeset .bk-cover__title {
+  font-size: var(--bk-fs-cover);
+  line-height: 1.2;
+  font-weight: var(--bk-w-head);
+  margin: 22px 0 0;
+  letter-spacing: -0.015em;
+}
+.md-typeset .bk-cover__sub {
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--bk-fg-soft);
+  margin: 14px 0 0;
+  font-weight: 400;
+}
+.md-typeset .bk-cover__lede {
+  font-size: var(--bk-fs-body);
+  line-height: 1.85;
+  color: var(--bk-fg-soft);
+  margin: 28px 0 0;
+  max-width: 34em;
+}
+.bk-cover__actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 34px 0 0; align-items: center; }
+.md-typeset .bk-cover__cta {
+  display: inline-block;
+  padding: 11px 22px;
+  border-radius: var(--bk-radius);
+  font-size: var(--bk-fs-small);
+  font-weight: var(--bk-w-strong);
+  border: 0;
+  letter-spacing: 0.02em;
+}
+.md-typeset .bk-cover__link {
+  font-size: var(--bk-fs-small);
+  border-bottom: 0;
+  color: var(--bk-fg-soft);
+}
+.md-typeset .bk-cover__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  margin: 40px 0 0;
+  font-size: var(--bk-fs-mini);
+  color: var(--bk-fg-faint);
+  letter-spacing: 0.06em;
+}
+.bk-cover__stats b { color: var(--bk-fg); font-weight: var(--bk-w-strong); font-size: var(--bk-fs-small); }
+
+/* 封面上的分卷/章网格 */
+.bk-toc { margin: 44px 0 0; }
+.md-typeset .bk-toc__part {
+  font-size: var(--bk-fs-mini);
+  letter-spacing: 0.16em;
+  color: var(--bk-fg-faint);
+  margin: 30px 0 6px;
+  padding-bottom: 8px;
+}
+.bk-toc__chapter { display: block; padding: 9px 0; border-bottom: var(--bk-hairline) solid var(--bk-line); }
+.bk-toc__chapter-name { font-size: var(--bk-fs-body); }
+.bk-toc__chapter-meta { font-size: var(--bk-fs-mini); color: var(--bk-fg-faint); }
+
+/* 通用小工具 */
+.bk-mini { font-size: var(--bk-fs-mini); letter-spacing: 0.06em; color: var(--bk-fg-faint); }
+.bk-rule { border: 0; border-top: var(--bk-hairline) solid var(--bk-line); margin: 34px 0; }
+
+/* 版心控制 */
+.md-content__inner { max-width: var(--bk-measure); margin: 0 auto; }
+/* 封面上允许比正文更宽（排版上"打开"） */
+.md-content__inner:has(.bk-cover),
+.md-content__inner:has(.bk-chapter-head) { max-width: none; }
+.md-content__inner:has(.bk-cover) .bk-cover,
+.md-content__inner:has(.bk-chapter-head) .bk-chapter-head { max-width: var(--bk-measure); }
+.md-content__inner:has(.bk-cover) .bk-toc { max-width: var(--bk-measure); }
+@media (min-width: 1220px) {
+  .md-grid { max-width: var(--bk-page-max); }
+}
+
+/* 侧边栏：给层次留呼吸（方向层再加身份） */
+.md-nav { font-size: 14px; }
+.md-nav__title { font-weight: var(--bk-w-strong); }
+.md-nav__item { padding: 0; }
+.md-nav__link { margin-top: 0; }
+
+/* 焦点可见性（键盘可达） */
+:is(a, button, label, input):focus-visible {
+  outline: 2px solid var(--bk-accent);
+  outline-offset: 2px;
+}
+
+/* 动效尊重系统设置 */
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* 打印：读者要能直接打印一章 */
+@media print {
+  .md-header, .md-sidebar, .md-footer, .bk-announce { display: none !important; }
+  .md-content__inner { max-width: none; }
+  .md-typeset { font-size: 10.5pt; line-height: 1.7; }
+  .md-typeset h2, .md-typeset h3 { break-after: avoid; }
+  .md-typeset table, .md-typeset pre, .bk-evidence { break-inside: avoid; }
+}
+
+/* ---------------------------------------------------------------------------
+   9b) 侧栏的两级结构（机制层，按 Material 实际 DOM 写）
+   ---------------------------------------------------------------------------
+   Material 渲染出来的真实结构（2026-09-18 实测）：
+     分卷（上篇/下篇）  = li.md-nav__item--section  > label.md-nav__link      ← 无 index，是"标签"
+     章（可点开）        = li.md-nav__item--nested   > div.md-nav__container > a.md-nav__link
+     节（叶子）          = li.md-nav__item           > a.md-nav__link
+   所以两级可以靠结构选择器精确区分，不需要任何 JS、也不靠 class 命名约定。
+   分卷这一层在这里**故意做成"分隔标签"**（小号 + 字距 + 上细线），让它读起来是分卷，
+   而不是跟"章"抢层级 —— 读者的层级认知保持：章 = 一级，节 = 二级。
+   --------------------------------------------------------------------------- */
+
+/* 分卷：分隔标签，不是可点层级 */
+.md-nav--primary .md-nav__item--section > label.md-nav__link {
+  font-size: 11.5px;
+  letter-spacing: 0.10em;
+  font-weight: var(--bk-w-strong);
+  color: var(--bk-fg-faint);
+  margin-top: 14px;
+  padding: 12px 0 5px;
+  border-top: var(--bk-hairline) solid var(--bk-line);
+  cursor: default;
+}
+.md-nav--primary .md-nav__item--section > label.md-nav__link .md-nav__icon { display: none; }
+/* 分卷标签必须单行：折行会让它看起来像正文 */
+.md-nav--primary .md-nav__item--section > label.md-nav__link .md-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 章：一级。字重更重、字号更大、带一条 accent 左轨（仅当前章） */
+.md-nav--primary .md-nav__container {
+  display: flex;
+  align-items: stretch;
+  border-left: 2px solid transparent;
+  padding-left: 2px;
+}
+.md-nav--primary .md-nav__container > .md-nav__link {
+  font-size: 14.5px;
+  font-weight: var(--bk-w-strong);
+  color: var(--bk-fg);
+  padding: 7px 0 7px 8px;
+  letter-spacing: 0;
+}
+.md-nav--primary .md-nav__container > label.md-nav__link { padding-left: 0; }
+.md-nav--primary .md-nav__item--active > .md-nav__container,
+.md-nav--primary .md-nav__item--nested.md-nav__item--active > .md-nav__container {
+  border-left-color: var(--bk-accent);
+}
+.md-nav--primary .md-nav__container > .md-nav__link.md-nav__link--active { color: var(--bk-accent); }
+
+/* 节：二级。小一号、字重常规、颜色更淡、缩进一格（Material 自带缩进，这里只调字） */
+.md-nav--primary .md-nav .md-nav__item > .md-nav__link {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--bk-fg-soft);
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.md-nav--primary .md-nav .md-nav__item--active > .md-nav__link {
+  color: var(--bk-accent);
+  font-weight: var(--bk-w-strong);
+  background: transparent;
+}
+/* 当前节的左侧标记（细，不抢戏） */
+.md-nav--primary .md-nav .md-nav__item--active > .md-nav__link .md-ellipsis { position: relative; }
+.md-nav--primary .md-nav .md-nav__item--active > .md-nav__link::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bk-accent);
+  transform: translateY(-50%);
+}
+.md-nav--primary .md-nav .md-nav__item { position: relative; }
+
+/* ---------------------------------------------------------------------------
+   9c) 顶部状态条：窄屏处理
+   ---------------------------------------------------------------------------
+   桌面是「一句话 + 进度条 + 入口」一行排开；窄屏挤不下会变成 5 行，很难看。
+   窄屏策略：文字单行省略 + 进度条让位（进度在封面和章导语页里都有，不差这一处）。
+   --------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .bk-announce {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .bk-announce__text {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11.5px;
+  }
+  .bk-announce__link { flex: 0 0 auto; font-size: 11.5px; }
+  /* 进度条与百分比让位（方向层可能用自己的类名，这里两种都覆盖） */
+  .bk-announce .bk-progress,
+  .bk-announce .bk-progress__bar,
+  .bk-announce__bar,
+  .bk-announce__pct { display: none; }
+}
