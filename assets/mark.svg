@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-  <!-- 言行致远 · 方向 B 标记：言（起点）→ 行（三条路径）→ 远（消失点）
+  <!-- 一言AI行 · 方向 B 标记：言（起点）→ 行（三条路径）→ 远（消失点）
        线条刻意做细（1.2）：账簿里的线，不是图标里的块。 -->
   <circle cx="6" cy="26" r="2.1" fill="currentColor"/>
   <path d="M6 26 26.1 5.9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>

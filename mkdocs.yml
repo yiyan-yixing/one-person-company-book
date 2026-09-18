@@ -68,7 +68,7 @@
 "site_url": "https://yiyan-yixing.github.io/one-person-company-book/"
 "repo_url": "https://github.com/yiyan-yixing/one-person-company-book"
 "repo_name": "yiyan-yixing/one-person-company-book"
-"copyright": "本书采用 CC BY-NC-SA 4.0 许可（署名 · 非商业性使用 · 相同方式共享）· 署名「言行致远」"
+"copyright": "本书采用 CC BY-NC-SA 4.0 许可（署名 · 非商业性使用 · 相同方式共享）· 署名「一言AI行」"
 "nav":
   - "封面": "index.md"
   - "全书目录": "目录大纲.md"
@@ -124,7 +124,7 @@
     "title": "一人公司"
     "subtitle": "把一个人的边界，扩成一家公司"
     "lede": "一个人怎么用 AI 把「干不过来」变成一家公司。不讲原理，讲过程与账本：做成了什么、踩了哪些坑、账上长什么样。"
-    "imprint": "言行致远"
+    "imprint": "一言AI行"
     "repo": "https://github.com/yiyan-yixing/one-person-company-book"
     "site_url": "https://yiyan-yixing.github.io/one-person-company-book/"
     "prelude_cta": "正文/00-引子.html"
